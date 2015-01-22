@@ -40,6 +40,7 @@
     ,"lodash-node": "2.4.1"
     ,"shelljs": "~0.2.5"
     ,"fs-extra": "0.15.0"
+    ,"spritesmith": "1.0.3"
   },
   "peerDependencies": {
     "grunt": "0.4.5"

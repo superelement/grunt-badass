@@ -1,45 +1,53 @@
 'use strict';
 
-var badass = require("../tasks/badass.js");
-var shell = require("shelljs");
-var fse = require("fs-extra");
-var cwd = process.cwd();
+var badass = require("../tasks/badass.js")
+	,_ = require("lodash-node")
+	,shell = require("shelljs")
+	,fse = require("fs-extra")
+	,cwd = process.cwd();
 
 describe("test 1 - check generated files and folders", function() {
 	
-	var config = require("./grunt_configs/test1.js").test
-		,TEST_DIR = "./dist/test1/"
-		,pngDir = TEST_DIR+config.options.pngDir+"/"
-		,singlesDir = TEST_DIR+"singles/";
+	/**
+	 * Lodash template used just for converting path vars
+	 */
+	var rootDirObj = { rootDir: "./" }
+		,config = require("./grunt_configs/test1.js").test
+		,COMPASS_SPRITE_DIR = _.template( config.dest, rootDirObj )
+		,STAND_ALONE_PNG_DIR = _.template( config.options.standAlonePngDir, rootDirObj )
+		,PNG_DIR = COMPASS_SPRITE_DIR+config.options.pngDir+"/";
 	
 	gruntTest(1);
 
-	it("should have created a scss file for icons that no longer contains any template syntax.", function() {		
-		expect( fse.existsSync("./dist/test1/icons.scss") ).toBe( true );
+	it("should have created a scss file for icons which should no longer contains any template syntax.", function() {		
 
-		var scss = fse.readFileSync(TEST_DIR+"icons.scss").toString();
+		expect( fse.existsSync(COMPASS_SPRITE_DIR+"icons.scss") ).toBe( true );
+
+		var scss = fse.readFileSync(COMPASS_SPRITE_DIR+"icons.scss").toString();
 		expect( scss.indexOf("<%=") ).toEqual(-1);
 	});
 
 	it( "should check that all SVG icons have had corresponding PNGs generated", function() {
-
-		expect( fse.existsSync(pngDir) ).toBe( true );
+		expect( fse.existsSync(PNG_DIR) ).toBe( true );
 		
 		config.options.items.forEach( function(item, i) {
-			var pngIcon = pngDir+item.class+".png";
+			var pngIcon = PNG_DIR+item.class+".png";
 			expect( fse.existsSync(pngIcon) ).toBe( true );
 		});
 	});
 
 	it("should check that specified stand alone pngs have been generate", function() {
 		
-		expect( fse.existsSync(TEST_DIR+"singles/") ).toBe( true );
+		expect( fse.existsSync(STAND_ALONE_PNG_DIR) ).toBe( true );
 
-		config.options.items.forEach( function(item, i) {
+		config.options.items.forEach(function(item) {
 			if( item.standAlone ) 
-				expect( fse.existsSync( singlesDir+item.class+".png" ) ).toBe( true );
+				expect( fse.existsSync( STAND_ALONE_PNG_DIR+item.class+".png" ) ).toBe( true );
 		});
 	});
+
+
+	// TODO: test file names are css compatible
 
 	/*it("should have copied the `svgloader.js` file into dist.", function() {		
 		expect( fse.existsSync("./dist/test1/svgloader.js") ).toBe( true );
@@ -49,8 +57,8 @@ describe("test 1 - check generated files and folders", function() {
 
 describe("cleanup", function() {
 	it("should clean up the dist folder", function() {
-		fse.removeSync( "./dist" );
-		expect( fse.existsSync("./dist") ).toBe( false );
+		fse.removeSync( "./dist/test1" );
+		expect( fse.existsSync("./dist/test1") ).toBe( false );
 	});
 });
 

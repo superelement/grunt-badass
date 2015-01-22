@@ -1,8 +1,10 @@
 module.exports = function( grunt ) {
 	"use strict";
 
-	var svgToPng = require( 'svg-to-png' )
-		,_ = require( 'lodash-node' )
+	var svgToPng = require('svg-to-png')
+        ,spritesmith = require('spritesmith')
+        ,fse = require("fs-extra")
+		,_ = require('lodash-node')
         ,ALMOST_ZERO = "0.0001";
 
 	grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
@@ -10,6 +12,7 @@ module.exports = function( grunt ) {
 		var config = this.options({
             pngDir: "bad"
             ,standAlonePngDir: "./stand-alone-pngs/"
+            ,spriteUrl: null
             ,svgDir: "myicons-svgs/"
 			,scssOutput: "_myicons.scss"
             ,defaultWidth: "10px"
@@ -30,7 +33,6 @@ module.exports = function( grunt ) {
         if(config.cwd[ config.cwd.length-1 ] != "/" ) config.cwd += "/";
 
         config.tmpDir = config.cwd + config.tmpDir;
-        console.log( config.cwd )
 
         // empty the temp folder if exists
         if( grunt.file.exists(config.tmpDir) )
@@ -64,21 +66,83 @@ module.exports = function( grunt ) {
 
             svgToPng.convert( config.tmpDir, fileObj.dest, opts )
             .then( function( result , err ){
-                if( err ){
-                    grunt.fatal( err );
-                }
+                if( err ) grunt.fatal( err );
 
-                copyStandAlonePngs( config.items, fileObj.dest + config.pngDir + "/", config.standAlonePngDir );
+                var pngDir = fileObj.dest + config.pngDir + "/";
+                copyStandAlonePngs( config.items, pngDir, config.standAlonePngDir );
 
                 if( cnt >= fileObj.src.length ) {
                     // empty the temp folder
                     grunt.file.delete( config.tmpDir, { force: true });
-                    done();
+
+                    if(config.spriteUrl)   generateSprite( config.spriteUrl, config.pngDir, config.scssOutput, config.items, pngDir, done);
+                    else                   done();
                 }
             });
         });
 
 	});
+
+
+    function generateSprite( spriteUrl, prefix, scssOutput, items, pngDir, done ) {
+
+        var icons = [];
+        items.forEach(function(item) {
+            icons.push( pngDir + item.class + '.png' );
+        });
+
+        spritesmith({ src: icons }, function(err, result) {
+
+            if(err) throw err;
+
+            fse.writeFileSync( pngDir + "sprite.png", result.image, 'binary' );
+
+            var scss = fse.readFileSync( scssOutput );
+
+            // console.log( result.coordinates );
+            // console.log( result.properties );
+
+            scss += "."+prefix+"-sprite"+(function(coords) {
+                            var rtn = "";
+                            _.forEach(coords, function(imgObj, name) {
+
+                                var lastSlashIndex = name.lastIndexOf("/");
+                                var dotIndex = name.lastIndexOf(".png");
+
+                                rtn += ", ."+prefix+"-"+name.slice( lastSlashIndex+1, dotIndex );
+                            });
+                            return rtn;
+                        })(result.coordinates)+" {\n"+
+                    "  background: url('"+spriteUrl+"') no-repeat;\n"+
+                    "}\n\n";
+
+            scss += (function(coords) {
+                    var rtn = "";
+                    _.forEach(coords, function(imgObj, name) {
+
+                        var lastSlashIndex = name.lastIndexOf("/");
+                        var dotIndex = name.lastIndexOf(".png");
+
+                        if( imgObj.x !== 0 ) imgObj.x = imgObj.x * -1;
+                        if( imgObj.y !== 0 ) imgObj.y = imgObj.y * -1;
+
+                        rtn += "."+prefix+"-"+name.slice( lastSlashIndex+1, dotIndex ) + " {\n";
+
+                        rtn += "  background-position:"+imgObj.x+"px "+ imgObj.y+"px;\n";
+                        rtn += "  width:"+imgObj.width+"px\n";
+                        rtn += "  height:"+imgObj.height+"px\n";
+                        rtn += "}\n\n";
+                    });
+                    return rtn;
+                })(result.coordinates);
+
+            fse.writeFileSync( scssOutput, scss );
+            
+            done();
+        });
+        // console.log( icons );
+
+    }
     
     
     function copyStandAlonePngs( items, pngDir, standAlonePngDir ) {
@@ -216,7 +280,7 @@ module.exports = function( grunt ) {
 
         var scss = grunt.file.read( cwd + "tasks/resources/icons.scss" );
         
-        scss = _.template( scss, {pngDir: pngDir} );
+        scss = _.template( scss, {pngDir: pngDir} ) + "\n\n";
 
         scss += getClassesByProp( pngDir, items, "fillCol", "fill", true );
         scss += getClassesByProp( pngDir, items, "strokeCol", "stroke", false );

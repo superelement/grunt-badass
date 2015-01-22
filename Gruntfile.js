@@ -47,6 +47,7 @@ module.exports = function(grunt) {
 
 					// if 'standAlone' is marked as true, files will get copied to this directory
 					,standAlonePngDir: "dist/singles/"
+					,spriteUrl: "/_dist/deploy/img/sprites/dmicon-s501a7eb4b9.png"
 
 					,svgDir: "tmp/myicons-svgs/"
 					,scssOutput: "dist/icons.scss"
