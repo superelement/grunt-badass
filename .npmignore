@@ -4,3 +4,5 @@ tmp
 dist
 *DS_Store
 *.db
+*.sublime-project
+*.sublime-workspace

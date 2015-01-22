@@ -8,7 +8,7 @@ module.exports = function( grunt ) {
 	grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
 		var config = this.options({
-            pngDir: "./pngs/"
+            pngDir: "bad"
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,svgDir: "myicons-svgs/"
 			,scssOutput: "_myicons.scss"
@@ -22,8 +22,6 @@ module.exports = function( grunt ) {
             ,tmpDir: "./tmp/"
             ,cwd: null
 		});
-
-        console.log( config.cwd )
 
         // sets the current working directory ("cwd") if not defined in config
         if(!config.cwd) config.cwd = process.cwd();
@@ -62,7 +60,7 @@ module.exports = function( grunt ) {
 
             coloursAndSizes( config.defaultCol, src, config.items, config.tmpDir );
             copySafeSrc( config.defaultCol, src, config.svgDir );
-            saveScss( config.cwd, config.scssOutput, config.items );
+            saveScss( config.pngDir, config.cwd, config.scssOutput, config.items );
 
             svgToPng.convert( config.tmpDir, fileObj.dest, opts )
             .then( function( result , err ){
@@ -214,13 +212,15 @@ module.exports = function( grunt ) {
         });
     }
 
-    function saveScss( cwd, scssOutput, items ) {
+    function saveScss( pngDir, cwd, scssOutput, items ) {
 
         var scss = grunt.file.read( cwd + "tasks/resources/icons.scss" );
+        
+        scss = _.template( scss, {pngDir: pngDir} );
 
-        scss += getClassesByProp( items, "fillCol", "fill", true );
-        scss += getClassesByProp( items, "strokeCol", "stroke", false );
-        scss += getClassesByProp( items, "strokeWidth", "stroke-width", false );
+        scss += getClassesByProp( pngDir, items, "fillCol", "fill", true );
+        scss += getClassesByProp( pngDir, items, "strokeCol", "stroke", false );
+        scss += getClassesByProp( pngDir, items, "strokeWidth", "stroke-width", false );
 
         // Think this does nothing
         // scss = scss.split( ALMOST_ZERO ).join("0");
@@ -229,7 +229,7 @@ module.exports = function( grunt ) {
     }
 
 
-    function getClassesByProp( items, propName, cssPropName, inclNone ) {
+    function getClassesByProp( pngDir, items, propName, cssPropName, inclNone ) {
 
         var vals = _.uniq( _.pluck( items, propName ) )
             ,line1 = "\n"
@@ -246,7 +246,7 @@ module.exports = function( grunt ) {
                 _.forEach( items, function( item ) {
 
                     if( item[ propName ] === val ) {
-                        rtnStr += ".dmicon-" + item.class + ","+line1;
+                        rtnStr += "."+pngDir+"-" + item.class + ","+line1;
                     }
                 });
 

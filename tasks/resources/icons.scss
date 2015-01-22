@@ -1,11 +1,11 @@
 @import "compass/utilities/sprites";
 
-$dmicon-sprite-dimensions: true;
-$dmicon-layout: smart;
-@import "dmicon/*.png";
-@include all-dmicon-sprites;
+$<%= pngDir %>-sprite-dimensions: true;
+$<%= pngDir %>-layout: smart;
+@import "<%= pngDir %>/*.png";
+@include all-<%= pngDir %>-sprites;
 
-.dmicon {
+.<%= pngDir %> {
 	display: block;
 }
 
@@ -24,7 +24,7 @@ svg {
 	display: none;
 }
 
-.dmicon.dmicon-inline {
+.<%= pngDir %>.<%= pngDir %>-inline {
 	display: inline;
 
 	.iconsfallback & {
@@ -38,7 +38,7 @@ svg {
  * so it will ignore this, which is fine.
  * Be carefull with .forcefallback, as it will load the entire sprite.
  */
-html:not(.iconsfallback) .dmicon:not(.forcefallback) {
+html:not(.iconsfallback) .<%= pngDir %>:not(.forcefallback) {
   background: none !important;
 }
 
