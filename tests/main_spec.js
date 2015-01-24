@@ -15,7 +15,7 @@ describe("test 1 - check generated files and folders", function() {
 		,config = require("./grunt_configs/test1.js").test
 		,COMPASS_SPRITE_DIR = _.template( config.dest, rootDirObj )
 		,STAND_ALONE_PNG_DIR = _.template( config.options.standAlonePngDir, rootDirObj )
-		,PNG_DIR = COMPASS_SPRITE_DIR+config.options.pngDir+"/";
+		,PNG_DIR = COMPASS_SPRITE_DIR+config.options.cssPrefix+"/";
 	
 	gruntTest(1);
 

@@ -2,7 +2,7 @@ exports.test = {
 	src: '<%= rootDir %>tests/resources/'
 	,dest: "<%= rootDir %>dist/test1/compass-sprite-prep/"
 	,options: {
-		pngDir: "bad" // sprites will take this folder name as part of class name, so keep it short
+		cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
 
 		// if 'standAlone' is marked as true, files will get copied to this directory
 		,standAlonePngDir: "<%= rootDir %>dist/test1/singles/"

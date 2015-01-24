@@ -43,7 +43,7 @@ module.exports = function(grunt) {
 				src: 'tests/resources/'
 				,dest: "dist/"
 				,options: {
-					pngDir: "bad" // sprites will take this folder name as part of class name, so keep it short
+					cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
 
 					// if 'standAlone' is marked as true, files will get copied to this directory
 					,standAlonePngDir: "dist/singles/"

@@ -10,7 +10,7 @@ module.exports = function( grunt ) {
 	grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
 		var config = this.options({
-            pngDir: "bad"
+            cssPrefix: "bad"
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,spriteUrl: null
             ,svgDir: "myicons-svgs/"
@@ -50,7 +50,7 @@ module.exports = function( grunt ) {
 		}
 
 		var opts = {
-            pngfolder: config.pngDir
+            pngfolder: config.cssPrefix
             ,defaultWidth: config.defaultWidth
             ,defaultHeight: config.defaultHeight
         };
@@ -62,20 +62,20 @@ module.exports = function( grunt ) {
 
             coloursAndSizes( config.defaultCol, src, config.items, config.tmpDir );
             copySafeSrc( config.defaultCol, src, config.svgDir );
-            saveScss( config.pngDir, config.cwd, config.scssOutput, config.items );
+            saveScss( config.cssPrefix, config.cwd, config.scssOutput, config.items );
 
             svgToPng.convert( config.tmpDir, fileObj.dest, opts )
             .then( function( result , err ){
                 if( err ) grunt.fatal( err );
 
-                var pngDir = fileObj.dest + config.pngDir + "/";
+                var pngDir = fileObj.dest + config.cssPrefix + "/";
                 copyStandAlonePngs( config.items, pngDir, config.standAlonePngDir );
 
                 if( cnt >= fileObj.src.length ) {
                     // empty the temp folder
                     grunt.file.delete( config.tmpDir, { force: true });
 
-                    if(config.spriteUrl)   generateSprite( config.spriteUrl, config.pngDir, config.scssOutput, config.items, pngDir, done);
+                    if(config.spriteUrl)   generateSprite( config.spriteUrl, config.cssPrefix, config.scssOutput, config.items, pngDir, done);
                     else                   done();
                 }
             });
@@ -102,20 +102,29 @@ module.exports = function( grunt ) {
             // console.log( result.coordinates );
             // console.log( result.properties );
 
-            scss += "."+prefix+"-sprite"+(function(coords) {
+            // Declare the sprite used as background image for all classes
+            scss += "."+cssPrefix+
+                        /*
+                        // Actually, we don't need all the other classes, because the DOM elements should 
+                        // contain the main sprite class as well as the icon class. So commenting out this part.
+
+                        (function(coords) {
                             var rtn = "";
                             _.forEach(coords, function(imgObj, name) {
 
                                 var lastSlashIndex = name.lastIndexOf("/");
                                 var dotIndex = name.lastIndexOf(".png");
 
-                                rtn += ", ."+prefix+"-"+name.slice( lastSlashIndex+1, dotIndex );
+                                rtn += ", ."+cssPrefix+"-"+name.slice( lastSlashIndex+1, dotIndex );
                             });
                             return rtn;
-                        })(result.coordinates)+" {\n"+
+                        })(result.coordinates)+
+                        */
+                    " {\n"+
                     "  background: url('"+spriteUrl+"') no-repeat;\n"+
                     "}\n\n";
 
+            // Now declare the individual icon classes with coords on the sprite
             scss += (function(coords) {
                     var rtn = "";
                     _.forEach(coords, function(imgObj, name) {
@@ -126,7 +135,7 @@ module.exports = function( grunt ) {
                         if( imgObj.x !== 0 ) imgObj.x = imgObj.x * -1;
                         if( imgObj.y !== 0 ) imgObj.y = imgObj.y * -1;
 
-                        rtn += "."+prefix+"-"+name.slice( lastSlashIndex+1, dotIndex ) + " {\n";
+                        rtn += "."+cssPrefix+"-"+name.slice( lastSlashIndex+1, dotIndex ) + " {\n";
 
                         rtn += "  background-position:"+imgObj.x+"px "+ imgObj.y+"px;\n";
                         rtn += "  width:"+imgObj.width+"px\n";
@@ -140,8 +149,6 @@ module.exports = function( grunt ) {
             
             done();
         });
-        // console.log( icons );
-
     }
     
     
@@ -276,15 +283,15 @@ module.exports = function( grunt ) {
         });
     }
 
-    function saveScss( pngDir, cwd, scssOutput, items ) {
+    function saveScss( cssPrefix, cwd, scssOutput, items ) {
 
         var scss = grunt.file.read( cwd + "tasks/resources/icons.scss" );
         
-        scss = _.template( scss, {pngDir: pngDir} ) + "\n\n";
+        scss = _.template( scss, {cssPrefix: cssPrefix} ) + "\n\n";
 
-        scss += getClassesByProp( pngDir, items, "fillCol", "fill", true );
-        scss += getClassesByProp( pngDir, items, "strokeCol", "stroke", false );
-        scss += getClassesByProp( pngDir, items, "strokeWidth", "stroke-width", false );
+        scss += getClassesByProp( cssPrefix, items, "fillCol", "fill", true );
+        scss += getClassesByProp( cssPrefix, items, "strokeCol", "stroke", false );
+        scss += getClassesByProp( cssPrefix, items, "strokeWidth", "stroke-width", false );
 
         // Think this does nothing
         // scss = scss.split( ALMOST_ZERO ).join("0");
@@ -293,7 +300,7 @@ module.exports = function( grunt ) {
     }
 
 
-    function getClassesByProp( pngDir, items, propName, cssPropName, inclNone ) {
+    function getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone ) {
 
         var vals = _.uniq( _.pluck( items, propName ) )
             ,line1 = "\n"
@@ -310,7 +317,7 @@ module.exports = function( grunt ) {
                 _.forEach( items, function( item ) {
 
                     if( item[ propName ] === val ) {
-                        rtnStr += "."+pngDir+"-" + item.class + ","+line1;
+                        rtnStr += "."+cssPrefix+"-" + item.class + ","+line1;
                     }
                 });
 

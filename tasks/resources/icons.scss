@@ -1,11 +1,11 @@
 @import "compass/utilities/sprites";
 
-$<%= pngDir %>-sprite-dimensions: true;
-$<%= pngDir %>-layout: smart;
-@import "<%= pngDir %>/*.png";
-@include all-<%= pngDir %>-sprites;
+$<%= cssPrefix %>-sprite-dimensions: true;
+$<%= cssPrefix %>-layout: smart;
+@import "<%= cssPrefix %>/*.png";
+@include all-<%= cssPrefix %>-sprites;
 
-.<%= pngDir %> {
+.<%= cssPrefix %> {
 	display: block;
 }
 
@@ -24,7 +24,7 @@ svg {
 	display: none;
 }
 
-.<%= pngDir %>.<%= pngDir %>-inline {
+.<%= cssPrefix %>.<%= cssPrefix %>-inline {
 	display: inline;
 
 	.iconsfallback & {
@@ -38,7 +38,7 @@ svg {
  * so it will ignore this, which is fine.
  * Be carefull with .forcefallback, as it will load the entire sprite.
  */
-html:not(.iconsfallback) .<%= pngDir %>:not(.forcefallback) {
+html:not(.iconsfallback) .<%= cssPrefix %>:not(.forcefallback) {
   background: none !important;
 }
 
