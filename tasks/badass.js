@@ -310,7 +310,7 @@ module.exports = function( grunt ) {
             ,line1 = "\n"
             ,line2 = "\n\n";
 
-        console.log( items );
+        // console.log( vals );
 
         var rtnStr = "";
         _.forEach( vals, function( val ) {
@@ -332,7 +332,7 @@ module.exports = function( grunt ) {
                 rtnStr += "}"+line2;
             }
         });
-
+        
         // console.log( rtnStr );
         return rtnStr;
     }

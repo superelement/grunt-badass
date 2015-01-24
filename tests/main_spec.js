@@ -3,6 +3,7 @@
 var _ = require("lodash-node")
 	,shell = require("shelljs")
 	,fse = require("fs-extra")
+	,parserlib = require("parserlib") // for linting CSS
 	,cwd = process.cwd()
 
 describe("test 1 - check generated files and folders", function() {
@@ -89,14 +90,27 @@ describe("badass testable methods", function() {
 
 	describe("getClassesByProp()", function() {
 
-		it("should return valid css as a string", function() {
+		var originalTimeout;
+
+		beforeEach(function() {
+
+			originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+	  		jasmine.DEFAULT_TIMEOUT_INTERVAL = 4000;
+		});
+
+
+		afterEach(function() {
+			jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+		});
+
+		it("should return CSS that passes 'parserlib' linting", function(done) {
 			var cssPrefix = "bad"
 				,items = [{
 					filename: "cloud"
 					,class: "cloud-down"
 					,w:50
 					,h:41
-					,filCol: "#999"
+					,fillCol: "#999"
 				}]
 				,propName = "fillCol"
 				,cssPropName = "fill"
@@ -104,7 +118,30 @@ describe("badass testable methods", function() {
 
 			var returnedStr = testableMethods.getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone );
 
-			console.log( returnedStr );
+			// console.log( returnedStr.trim() )
+			// expect( returnedStr ).toBe(".bad-cloud-down {\n	fill: #999;\n}");
+
+			// Now we lint the CSS
+			var parser = new parserlib.css.Parser();
+
+			// will get changed to true in error handler if errors detected
+			var errorsFound = false;
+
+			parser.addListener("error", function(event){
+			    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
+			    errorsFound = true;
+			});
+
+			parser.addListener("endstylesheet", function(){
+			    console.log("Finished parsing style sheet");
+
+				expect( errorsFound ).toBe( false );
+
+				// finish the test
+			    done();
+			});
+			
+			parser.parse( returnedStr );
 		});
 	});
 });
