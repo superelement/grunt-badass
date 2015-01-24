@@ -84,7 +84,7 @@ module.exports = function( grunt ) {
 	});
 
 
-    function generateSprite( spriteUrl, prefix, scssOutput, items, pngDir, done ) {
+    function generateSprite( spriteUrl, cssPrefix, scssOutput, items, pngDir, done ) {
 
         var icons = [];
         items.forEach(function(item) {
@@ -302,9 +302,15 @@ module.exports = function( grunt ) {
 
     function getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone ) {
 
+        // 'inclNone' {boolean}, if true will place the property in even if it can't find the attribute
+
+        // console.log( cssPrefix, items, propName, cssPropName, inclNone )
+
         var vals = _.uniq( _.pluck( items, propName ) )
             ,line1 = "\n"
             ,line2 = "\n\n";
+
+        console.log( items );
 
         var rtnStr = "";
         _.forEach( vals, function( val ) {
@@ -345,6 +351,8 @@ module.exports = function( grunt ) {
 
         // console.log( originalString.substr( rx ) );
 
+        if(!replacementString) replacementString = "";
+
         var result;
         if( keepDelimeteres === true ) {
             result = originalString.replace( rx, rxStart + replacementString + rxEnd );
@@ -355,5 +363,11 @@ module.exports = function( grunt ) {
         return result;
     }
 
-    
+    // Returns a 'tests' object for unit testing purposes only
+    return {
+        tests: {
+            getClassesByProp: getClassesByProp
+            ,replaceBetween: replaceBetween
+        }
+    }
 }

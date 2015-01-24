@@ -41,6 +41,7 @@
     ,"shelljs": "~0.2.5"
     ,"fs-extra": "0.15.0"
     ,"spritesmith": "1.0.3"
+    ,"csslint": "0.10.0"
   },
   "peerDependencies": {
     "grunt": "0.4.5"
