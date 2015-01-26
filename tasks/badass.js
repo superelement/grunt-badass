@@ -260,7 +260,7 @@ module.exports = function( grunt ) {
     }
 
 
-    // copies original svgs to be processed by svgmin
+    // copies original svgs to be processed by svgmin, removing references to BADASS for modern browsers
     function copySafeSrc( defaultCol, src, dest ) {
 
         grunt.file.recurse( src, function(abspath, rootdir, subdir, filename) {
@@ -268,16 +268,9 @@ module.exports = function( grunt ) {
             if( filename.indexOf(".svg") != -1 ) {
                 var contents = grunt.file.read( abspath );
 
-                // if( contents.indexOf('stroke="#'+BADASS+'"') != -1 && contents.indexOf('stroke-width="0.1"') == -1 )
-                    // contents = contents.split('stroke="#'+BADASS+'"').join(' stroke-width="0" ');
-
                 contents = contents.split('stroke-width="0.1"').join("");
                 contents = contents.split('stroke="#'+defaultCol+'"').join("");
                 contents = contents.split('fill="#'+defaultCol+'"').join("");
-
-                /*if( filename == "clickandcollect-4up.svg" ) {
-                    console.log( contents );
-                }*/
 
                 grunt.file.write( dest + filename, contents );
             }
@@ -380,6 +373,7 @@ module.exports = function( grunt ) {
             getClassesByProp: getClassesByProp
             ,replaceBetween: replaceBetween
             ,saveScss: saveScss
+            ,copySafeSrc: copySafeSrc
         }
     }
 }

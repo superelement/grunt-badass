@@ -194,9 +194,6 @@ describe("badass testable methods", function() {
 		});
 
 
-
-		
-
 		function callSimple() {
 			var cssPrefix = "bad"
 				,items = [{
@@ -214,6 +211,7 @@ describe("badass testable methods", function() {
 		}
 	});
 
+
 	describe("saveScss()", function() {
 		it("should save css in given location, ensuring 'includeCompassSpriteStyles' is false and lint it", function(done) {
 			var cssPrefix = "bad"
@@ -224,7 +222,7 @@ describe("badass testable methods", function() {
 					,h:41
 					,strokeCol: "#999"
 				}]
-				,scssOutput = cwd + "/tests/tmp/icons.css"
+				,scssOutput = cwd + "/dist/test1/tmp/icons.css"
 				// can only lint if 'includeCompassSpriteStyles' is false, as it will add scss specific styles
 				,includeCompassSpriteStyles = false;
 
@@ -238,10 +236,41 @@ describe("badass testable methods", function() {
 			lintCSS( done, css )
 		});
 	});
+
+
+	describe("copySafeSrc()", function() {
+
+		var srcPath = "./tests/resources/"
+			,destPath = "./dist/test1/safe-svgs/";
+
+		testableMethods.copySafeSrc( "BADA55", srcPath, destPath );
+
+		it("should verify that all '.svg' files have been copied to 'dest' directory", function() {
+
+			var srcFileNames = fse.readdirSync( srcPath )
+				,destFileNames = fse.readdirSync( destPath );
+
+			expect( _.isEqual(srcFileNames, destFileNames) ).toBe( true );
+		});
+
+		it("should check that svgs have had references to BADASS removed", function() {
+
+			var srcFileNames = fse.readdirSync( srcPath );
+
+			srcFileNames.forEach(function(fileName) {
+
+				var destContents = fse.readFileSync( destPath + fileName ).toString();
+
+				expect( destContents.indexOf("#BADA55") ).toEqual( -1 );
+				expect( destContents.indexOf("#bada55") ).toEqual( -1 );
+			});
+
+		});
+	});
 });
 
 
-describe("cleanup", function() {
+xdescribe("cleanup", function() {
 	it("should clean up the dist folder", function() {
 		fse.removeSync( "./dist/test1" );
 		expect( fse.existsSync("./dist/test1") ).toBe( false );
