@@ -302,7 +302,11 @@ module.exports = function( grunt ) {
 
     function getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone ) {
 
-        // 'inclNone' {boolean}, if true will place the property in even if it can't find the attribute
+        /**
+         * 'inclNone' {boolean}
+         * If true will place the property in even if it can't find the property in an object within the 'items' array.
+         * It will put it in the css with the 'transparent' value.
+         */
 
         // console.log( cssPrefix, items, propName, cssPropName, inclNone )
 
@@ -318,6 +322,7 @@ module.exports = function( grunt ) {
             // must be a string, so not to be a falsey
             // if( inclNone && propName === "strokeWidth" && !val ) val = "0";
 
+            // console.log( val, inclNone )
             if( val || !val && inclNone ) {
 
                 _.forEach( items, function( item ) {
@@ -368,6 +373,7 @@ module.exports = function( grunt ) {
         tests: {
             getClassesByProp: getClassesByProp
             ,replaceBetween: replaceBetween
+            ,saveScss: saveScss
         }
     }
 }

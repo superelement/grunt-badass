@@ -103,7 +103,91 @@ describe("badass testable methods", function() {
 			jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
 		});
 
-		it("should return CSS that passes 'parserlib' linting", function(done) {
+
+		it("should return specific CSS with 'fillCol' property", function(done) {
+			
+			var returnedStr = callSimple();
+
+			expect( trimAllWhite(returnedStr) ).toBe(".bad-cloud-down{fill:#999;}");
+
+			lintCSS( done, returnedStr );
+		});
+
+
+		describe("specific CSS with 'strokeCol' property", function() {
+
+			var cssPrefix = "bad"
+				,item = {
+					filename: "cloud"
+					,class: "cloud-down"
+					,w:50
+					,h:41
+					,strokeCol: "#999"
+				}
+				,propName = "strokeCol"
+				,cssPropName = "stroke";
+
+			it("should have specified hex value, when 'inclNone' is false", function(done) {
+				
+				var inclNone = false
+					,thisItem = _.clone(item);
+
+				var returnedStr = testableMethods.getClassesByProp( cssPrefix, [thisItem], propName, cssPropName, inclNone );
+
+				// expect result, based on 'strokeCol' property having a value in object with 'items' array. 
+				expect( trimAllWhite(returnedStr) ).toBe(".bad-cloud-down{stroke:#999;}");
+
+				lintCSS( done, returnedStr );
+			});
+
+
+			it("should have specified hex value, when 'inclNone' is true, showing it doesn't matter what this value is if property exists and ISN'T a falsey", function(done) {
+				
+				var inclNone = true
+					,thisItem = _.clone(item);
+
+				var returnedStr = testableMethods.getClassesByProp( cssPrefix, [thisItem], propName, cssPropName, inclNone );
+
+				// expect result, based on 'strokeCol' property having a value in object with 'items' array. 
+				expect( trimAllWhite(returnedStr) ).toBe(".bad-cloud-down{stroke:#999;}");
+
+				lintCSS( done, returnedStr );
+			});
+
+
+			it("should have 'transparent' value, when 'inclNone' is true and if property IS a falsey", function(done) {
+				
+				var inclNone = true
+					,thisItem = _.clone(item);
+
+				thisItem.strokeCol = undefined;
+
+				var returnedStr = testableMethods.getClassesByProp( cssPrefix, [thisItem], propName, cssPropName, inclNone );
+
+				expect( trimAllWhite(returnedStr) ).toBe(".bad-cloud-down{stroke:transparent;}");
+
+				lintCSS( done, returnedStr );
+			});
+
+
+			it("should return an empty string, when 'inclNone' is false and if property IS a falsey", function() {
+				
+				var inclNone = false
+					,thisItem = _.clone(item);
+
+				thisItem.strokeCol = undefined;
+
+				var returnedStr = testableMethods.getClassesByProp( cssPrefix, [thisItem], propName, cssPropName, inclNone );
+				
+				expect( returnedStr ).toBe("");
+			});
+		});
+
+
+
+		
+
+		function callSimple() {
 			var cssPrefix = "bad"
 				,items = [{
 					filename: "cloud"
@@ -116,11 +200,11 @@ describe("badass testable methods", function() {
 				,cssPropName = "fill"
 				,inclNone = true;
 
-			var returnedStr = testableMethods.getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone );
+			return testableMethods.getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone );
+		}
 
-			// console.log( returnedStr.trim() )
-			// expect( returnedStr ).toBe(".bad-cloud-down {\n	fill: #999;\n}");
 
+		function lintCSS( done, returnedStr ) {
 			// Now we lint the CSS
 			var parser = new parserlib.css.Parser();
 
@@ -142,7 +226,12 @@ describe("badass testable methods", function() {
 			});
 			
 			parser.parse( returnedStr );
-		});
+		}
+
+
+		function trimAllWhite(str) {
+			return str.replace(/\s+/g, '');
+		}
 	});
 });
 
