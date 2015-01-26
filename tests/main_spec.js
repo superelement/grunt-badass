@@ -4,9 +4,22 @@ var _ = require("lodash-node")
 	,shell = require("shelljs")
 	,fse = require("fs-extra")
 	,parserlib = require("parserlib") // for linting CSS
-	,cwd = process.cwd()
+	,cwd = process.cwd();
+
 
 describe("test 1 - check generated files and folders", function() {
+
+	var originalTimeout;
+
+	beforeEach(function() {
+		originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+  		jasmine.DEFAULT_TIMEOUT_INTERVAL = 4000;
+	});
+
+
+	afterEach(function() {
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+	});
 	
 	/**
 	 * Lodash template used just for converting path vars
@@ -19,13 +32,23 @@ describe("test 1 - check generated files and folders", function() {
 	
 	gruntTest(1);
 
-	it("should have created a scss file for icons which should no longer contains any template syntax.", function() {		
 
-		expect( fse.existsSync(COMPASS_SPRITE_DIR+"icons.scss") ).toBe( true );
-
-		var scss = fse.readFileSync(COMPASS_SPRITE_DIR+"icons.scss").toString();
-		expect( scss.indexOf("<%=") ).toEqual(-1);
+	it("should check task resources exist", function() {
+		expect( fse.existsSync("./tasks/resources/icons.css") ).toBe( true );
+		expect( fse.existsSync("./tasks/resources/svgloader.js") ).toBe( true );
 	});
+
+
+	it("should have created a css file for icons which should no longer contains any template syntax.", function(done) {		
+
+		expect( fse.existsSync(COMPASS_SPRITE_DIR+"icons.css") ).toBe( true );
+
+		var css = fse.readFileSync(COMPASS_SPRITE_DIR+"icons.css").toString();
+		expect( css.indexOf("<%=") ).toEqual(-1);
+
+		lintCSS( done, css );
+	});
+
 
 	it( "should check that all SVG icons have had corresponding PNGs generated", function() {
 		expect( fse.existsSync(PNG_DIR) ).toBe( true );
@@ -35,6 +58,7 @@ describe("test 1 - check generated files and folders", function() {
 			expect( fse.existsSync(pngIcon) ).toBe( true );
 		});
 	});
+
 
 	it("should check that specified stand alone pngs have been generate", function() {
 		
@@ -89,20 +113,6 @@ describe("badass testable methods", function() {
 	});
 
 	describe("getClassesByProp()", function() {
-
-		var originalTimeout;
-
-		beforeEach(function() {
-
-			originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-	  		jasmine.DEFAULT_TIMEOUT_INTERVAL = 4000;
-		});
-
-
-		afterEach(function() {
-			jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-		});
-
 
 		it("should return specific CSS with 'fillCol' property", function(done) {
 			
@@ -202,52 +212,31 @@ describe("badass testable methods", function() {
 
 			return testableMethods.getClassesByProp( cssPrefix, items, propName, cssPropName, inclNone );
 		}
-
-
-		function lintCSS( done, returnedStr ) {
-			// Now we lint the CSS
-			var parser = new parserlib.css.Parser();
-
-			// will get changed to true in error handler if errors detected
-			var errorsFound = false;
-
-			parser.addListener("error", function(event){
-			    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
-			    errorsFound = true;
-			});
-
-			parser.addListener("endstylesheet", function(){
-			    console.log("Finished parsing style sheet");
-
-				expect( errorsFound ).toBe( false );
-
-				// finish the test
-			    done();
-			});
-			
-			parser.parse( returnedStr );
-		}
-
-
-		function trimAllWhite(str) {
-			return str.replace(/\s+/g, '');
-		}
 	});
 
 	describe("saveScss()", function() {
-		var cssPrefix = "bad"
-			,items = [{
-				filename: "cloud"
-				,class: "cloud-down"
-				,w:50
-				,h:41
-				,strokeCol: "#999"
-			}]
-			,propName = "strokeCol"
-			,cssPropName = "stroke";
+		it("should save css in given location, ensuring 'includeCompassSpriteStyles' is false and lint it", function(done) {
+			var cssPrefix = "bad"
+				,items = [{
+					filename: "cloud"
+					,class: "cloud-down"
+					,w:50
+					,h:41
+					,strokeCol: "#999"
+				}]
+				,scssOutput = cwd + "/tests/tmp/icons.css"
+				// can only lint if 'includeCompassSpriteStyles' is false, as it will add scss specific styles
+				,includeCompassSpriteStyles = false;
 
-		console.log( process.cwd() )
-		// saveScss( cssPrefix, cwd, scssOutput, items );
+			testableMethods.saveScss( includeCompassSpriteStyles, cssPrefix, cwd + "/", scssOutput, items );
+
+			// ensure file exists before reading it
+			expect( fse.existsSync( scssOutput ) ).toBe( true );
+
+			// Lint it to make sure it is valid CSS
+			var css = fse.readFileSync( scssOutput ).toString();
+			lintCSS( done, css )
+		});
 	});
 });
 
@@ -263,4 +252,34 @@ function gruntTest( number ) {
 	process.chdir("tests/grunt_configs/");
 	var result = shell.exec("grunt badass:test"+number, {silent:true});
 	process.chdir(cwd);
+}
+
+
+function lintCSS( done, returnedStr ) {
+	// Now we lint the CSS
+	var parser = new parserlib.css.Parser();
+
+	// will get changed to true in error handler if errors detected
+	var errorsFound = false;
+
+	parser.addListener("error", function(event){
+	    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
+	    errorsFound = true;
+	});
+
+	parser.addListener("endstylesheet", function(){
+	    console.log("Finished parsing style sheet");
+
+		expect( errorsFound ).toBe( false );
+
+		// finish the test
+	    done();
+	});
+	
+	parser.parse( returnedStr );
+}
+
+
+function trimAllWhite(str) {
+	return str.replace(/\s+/g, '');
 }

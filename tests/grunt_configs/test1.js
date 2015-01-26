@@ -11,7 +11,7 @@ exports.test = {
 		,spriteUrl: "/absolute/url/to/sprite.png"
 
 		,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
-		,scssOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.scss"
+		,scssOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.css"
 		,cwd: "<%= rootDir %>"
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }

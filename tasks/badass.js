@@ -14,7 +14,8 @@ module.exports = function( grunt ) {
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,spriteUrl: null
             ,svgDir: "myicons-svgs/"
-			,scssOutput: "_myicons.scss"
+			,scssOutput: "_myicons.css"
+            ,includeCompassSpriteStyles: false
             ,defaultWidth: "10px"
             ,defaultHeight: "10px"
             ,defaultCol: "BADA55"
@@ -62,7 +63,7 @@ module.exports = function( grunt ) {
 
             coloursAndSizes( config.defaultCol, src, config.items, config.tmpDir );
             copySafeSrc( config.defaultCol, src, config.svgDir );
-            saveScss( config.cssPrefix, config.cwd, config.scssOutput, config.items );
+            saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.cwd, config.scssOutput, config.items );
 
             svgToPng.convert( config.tmpDir, fileObj.dest, opts )
             .then( function( result , err ){
@@ -138,8 +139,8 @@ module.exports = function( grunt ) {
                         rtn += "."+cssPrefix+"-"+name.slice( lastSlashIndex+1, dotIndex ) + " {\n";
 
                         rtn += "  background-position:"+imgObj.x+"px "+ imgObj.y+"px;\n";
-                        rtn += "  width:"+imgObj.width+"px\n";
-                        rtn += "  height:"+imgObj.height+"px\n";
+                        rtn += "  width:"+imgObj.width+"px;\n";
+                        rtn += "  height:"+imgObj.height+"px;\n";
                         rtn += "}\n\n";
                     });
                     return rtn;
@@ -283,10 +284,15 @@ module.exports = function( grunt ) {
         });
     }
 
-    function saveScss( cssPrefix, cwd, scssOutput, items ) {
+    function saveScss( includeCompassSpriteStyles, cssPrefix, cwd, scssOutput, items ) {
 
-        var scss = grunt.file.read( cwd + "tasks/resources/icons.scss" );
-        
+        var scss = "";
+
+        if( includeCompassSpriteStyles )
+            scss = grunt.file.read( cwd + "tasks/resources/icons-compass-sprite.scss" )+"\n\n";
+
+        scss += grunt.file.read( cwd + "tasks/resources/icons.css" );
+
         scss = _.template( scss, {cssPrefix: cssPrefix} ) + "\n\n";
 
         scss += getClassesByProp( cssPrefix, items, "fillCol", "fill", true );

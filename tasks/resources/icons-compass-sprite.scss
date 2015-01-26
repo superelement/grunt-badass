@@ -1,0 +1,6 @@
+@import "compass/utilities/sprites";
+
+$<%= cssPrefix %>-sprite-dimensions: true;
+$<%= cssPrefix %>-layout: smart;
+@import "<%= cssPrefix %>/*.png";
+@include all-<%= cssPrefix %>-sprites;

@@ -1,9 +1,4 @@
-@import "compass/utilities/sprites";
 
-$<%= cssPrefix %>-sprite-dimensions: true;
-$<%= cssPrefix %>-layout: smart;
-@import "<%= cssPrefix %>/*.png";
-@include all-<%= cssPrefix %>-sprites;
 
 .<%= cssPrefix %> {
 	display: block;
@@ -26,10 +21,10 @@ svg {
 
 .<%= cssPrefix %>.<%= cssPrefix %>-inline {
 	display: inline;
+}
 
-	.iconsfallback & {
-		display: inline-block;
-	}
+.iconsfallback .<%= cssPrefix %>.<%= cssPrefix %>-inline {
+	display: inline-block;
 }
 
 /**
