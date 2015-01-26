@@ -233,6 +233,22 @@ describe("badass testable methods", function() {
 			return str.replace(/\s+/g, '');
 		}
 	});
+
+	describe("saveScss()", function() {
+		var cssPrefix = "bad"
+			,items = [{
+				filename: "cloud"
+				,class: "cloud-down"
+				,w:50
+				,h:41
+				,strokeCol: "#999"
+			}]
+			,propName = "strokeCol"
+			,cssPropName = "stroke";
+
+		console.log( process.cwd() )
+		// saveScss( cssPrefix, cwd, scssOutput, items );
+	});
 });
 
 
