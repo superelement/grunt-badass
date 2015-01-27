@@ -78,13 +78,11 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 ## Dependecies
 - NodeJS/NPM
 - GruntJS
-- Ruby
-- Sass (Ruby Gem)
-- Compass (Ruby Gem)
 
 
 ## Release History
 
+ * 2015-01-28   v0.1.1   Changed to "spritesmith". Added unit tests. Changed config variables a bit after writing tests. Separated scss styles for non-sass version.
  * 2015-01-12   v0.1.0   Open sourcing project for first time. Uses Ruby & Compass for sprite generation, but will likely be changed to "spritesmith" in near future.
 
 ---

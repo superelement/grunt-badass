@@ -4,7 +4,7 @@ module.exports = function( grunt ) {
 	var svgToPng = require('svg-to-png')
         ,spritesmith = require('spritesmith')
         ,fse = require("fs-extra")
-		,_ = require('lodash-node')
+		,_ = require('lodash-node');
 
 	grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 

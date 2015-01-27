@@ -1,6 +1,6 @@
 {
-  "curly": true,
-  "eqeqeq": true,
+  "curly": false,
+  "eqeqeq": false,
   "immed": true,
   "latedef": true,
   "newcap": true,
@@ -10,5 +10,8 @@
   "boss": true,
   "eqnull": true,
   "node": true,
-  "es5": true
+  "es5": true,
+  "smarttabs": true,
+  "laxcomma": true
+  ,"asi": true
 }
