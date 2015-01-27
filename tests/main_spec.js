@@ -521,7 +521,7 @@ describe("badass testable methods", function() {
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
 			svgContents = testableMethods.replaceBetween(start, end, svgContents );
-			fse.writeFileSync( tempSrc + svgFileName, svgContents );
+			fse.outputFile( tempSrc + svgFileName, svgContents );
 		}
 
 		function replacePartSvg( testId, svgFileName, orig, repl ) {
@@ -530,7 +530,7 @@ describe("badass testable methods", function() {
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
 			svgContents = svgContents.split( orig ).join( repl );
-			fse.writeFileSync( tempSrc + svgFileName, svgContents );
+			fse.outputFile( tempSrc + svgFileName, svgContents );
 		}
 	});
 
@@ -582,6 +582,42 @@ describe("badass testable methods", function() {
 
 			expect( fse.existsSync( standAlonePngDir + "camera-warm.png" ) ).toBe( true );
 			expect( fse.existsSync( standAlonePngDir + "camera-cold.png" ) ).toBe( false );
+		});
+	});
+
+	describe("generateSprite()", function() {
+		it("should confirm the creation of a png and valid css file", function(done) {
+
+			var spriteUrl = "/some/path/to/sprite.png"
+			,cssPrefix = "bad"
+			,scssOutput = "./dist/test1/tmp-generate-sprite/icons.css"
+			,spriteOutput = "./dist/test1/tmp-generate-sprite/sprite.png"
+			,pngDir = "./tests/resources/pngs/"
+			,items = [
+				{
+					filename: 'camera',
+					class: 'camera-warm',
+					w: 50,
+					h: 44,
+					fillCol: 'orange'
+				},{
+					filename: 'camera',
+					class: 'camera-cold',
+					w: 50,
+					h: 44,
+					fillCol: 'blue'
+				}
+			];
+
+			// first create an empty css file, so we can modify it. In the plugin, this is done before calling this method.
+			fse.outputFileSync( scssOutput, "" );
+
+			testableMethods.generateSprite( spriteUrl, spriteOutput, cssPrefix, scssOutput, items, pngDir, function() {
+				
+				expect( fse.existsSync(spriteOutput) ).toBe( true );
+				expect( fse.existsSync(scssOutput) ).toBe( true );
+				lintCSS(done, fse.readFileSync(scssOutput) );
+			});
 		});
 	});
 });

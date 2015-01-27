@@ -9,6 +9,7 @@ exports.test = {
 		
 		// final url for sprite
 		,spriteUrl: "/absolute/url/to/sprite.png"
+		,spriteOutput: "<%= rootDir %>dist/test1/sprite.png"
 
 		,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
 		,scssOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.css"

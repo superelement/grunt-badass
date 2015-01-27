@@ -12,6 +12,7 @@ module.exports = function( grunt ) {
             cssPrefix: "bad"
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,spriteUrl: null
+            ,spriteOutput: null
             ,svgDir: "myicons-svgs/"
 			,scssOutput: "_myicons.css"
             ,includeCompassSpriteStyles: false
@@ -75,8 +76,13 @@ module.exports = function( grunt ) {
                     // empty the temp folder
                     grunt.file.delete( config.tmpDir, { force: true });
 
-                    if(config.spriteUrl)   generateSprite( config.spriteUrl, config.cssPrefix, config.scssOutput, config.items, pngDir, done);
-                    else                   done();
+                    if(!config.spriteUrl || !config.spriteOutput) {
+                        grunt.log.warn( "'spriteUrl' or 'spriteOutput' not specified. No sprite generared." );
+                        done();
+                    }
+                    else {
+                        generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.scssOutput, config.items, pngDir, done);
+                    }
                 }
             });
         });
@@ -84,7 +90,7 @@ module.exports = function( grunt ) {
 	});
 
 
-    function generateSprite( spriteUrl, cssPrefix, scssOutput, items, pngDir, done ) {
+    function generateSprite( spriteUrl, spriteOutput, cssPrefix, scssOutput, items, pngDir, done ) {
 
         var icons = [];
         items.forEach(function(item) {
@@ -95,7 +101,7 @@ module.exports = function( grunt ) {
 
             if(err) throw err;
 
-            fse.writeFileSync( pngDir + "sprite.png", result.image, 'binary' );
+            fse.outputFileSync( spriteOutput, result.image, 'binary' );
 
             var scss = fse.readFileSync( scssOutput );
 
@@ -145,7 +151,7 @@ module.exports = function( grunt ) {
                     return rtn;
                 })(result.coordinates);
 
-            fse.writeFileSync( scssOutput, scss );
+            fse.outputFileSync( scssOutput, scss );
             
             done();
         });
@@ -388,6 +394,7 @@ module.exports = function( grunt ) {
             ,coloursAndSizes: coloursAndSizes
             ,getFileBaseName: getFileBaseName
             ,copyStandAlonePngs: copyStandAlonePngs
+            ,generateSprite: generateSprite
         }
     }
 }

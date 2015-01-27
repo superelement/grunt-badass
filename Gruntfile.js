@@ -48,6 +48,7 @@ module.exports = function(grunt) {
 					// if 'standAlone' is marked as true, files will get copied to this directory
 					,standAlonePngDir: "dist/singles/"
 					,spriteUrl: "/_dist/deploy/img/sprites/dmicon-s501a7eb4b9.png"
+					,spriteOutput: "dist/sprite.png"
 
 					// Default is false. Will add compass sprite snippet to top of scss.
 					// Only change this to true if your project uses compass sprites and you want to merge badass icons into the main project sprite.
