@@ -260,7 +260,7 @@ describe("badass testable methods", function() {
 
 	describe("copySafeSrc()", function() {
 
-		var srcPath = "./tests/resources/"
+		var srcPath = "./tests/resources/svgs/"
 			,destPath = "./dist/test1/safe-svgs/";
 
 		testableMethods.copySafeSrc( DEF_COL, srcPath, destPath );
@@ -292,7 +292,7 @@ describe("badass testable methods", function() {
 	describe("replaceTag()", function() {
 		it("should replace default fill colour with a custom one", function() {
 
-			var svgContents = fse.readFileSync( "./tests/resources/camera.svg" ).toString()
+			var svgContents = fse.readFileSync( "./tests/resources/svgs/camera.svg" ).toString()
 				,tag = 'fill="#'+DEF_COL+'"'
 
 			// Check the tag exists first
@@ -343,7 +343,7 @@ describe("badass testable methods", function() {
 				standAlone: true
 			}
 		]
-		,svgSrcDir = "./tests/resources/"
+		,svgSrcDir = "./tests/resources/svgs/"
 
 		it("should check that xml header has been added to svg, if missing", function() {
 			
@@ -483,8 +483,29 @@ describe("badass testable methods", function() {
 			expect( fileContents.indexOf('stroke-width="3"') ).not.toEqual(-1);
 		});
 
-		// TODO: test what the bottom of this function is meant to achieve, starting at
-		// `if( contents.indexOf('stroke-width="0.1"') !== -1 )`
+
+		it("should check that stroke and fill colours get replaced with 'transparent' and stroke width an 'almostZero' number when omitted from config", function() {
+			var svgTempDir = "./dist/test1/tmp-svgs-stroke-trans/"
+				,item = {
+					filename: 'camera'
+					,class: "camera-cold"
+					,w: 50
+					,h: 44
+					// 'fillCol', 'strokeCol' & 'strokeWidth' deliberately omitted for test
+				}
+
+			testableMethods.coloursAndSizes( DEF_COL, svgSrcDir, [item], svgTempDir );
+
+			var fileContents = fse.readFileSync( svgTempDir+item.class + ".svg" ).toString();
+
+			expect( fileContents.indexOf('fill="transparent"') ).not.toEqual(-1);
+			expect( fileContents.indexOf('stroke="transparent"') ).not.toEqual(-1);
+
+			var almostZero = "0.0001";
+			expect( fileContents.indexOf('stroke-width="'+almostZero+'"') ).not.toEqual(-1);
+		});
+
+		
 
 		function createTempSrc( testId, svgFileName ) {
 			var tempSrc = "./dist/test1/tmp-colours-and-sizes-"+testId+"/"
@@ -511,6 +532,57 @@ describe("badass testable methods", function() {
 			svgContents = svgContents.split( orig ).join( repl );
 			fse.writeFileSync( tempSrc + svgFileName, svgContents );
 		}
+	});
+
+	describe("getFileBaseName()", function() {
+		it("should check file base name uses item properties when 'class' not specified", function() {
+			/**
+			 * If 'class' not specified, it should create a base name from file name, width, height, fill and stroke values
+			 */
+
+			var item = {
+					filename: 'camera'
+					,class: null
+					,w: 50
+					,h: 44
+					,fillCol: 'blue'
+					,strokeCol: 'red'
+					,strokeWidth: '3'
+				}
+
+			var fileBaseName = testableMethods.getFileBaseName( item );
+
+			expect( fileBaseName ).toBe(	item.filename + 
+											"-w"+item.w + 
+											"-h"+item.h + 
+											"-sw-"+item.strokeWidth +
+											"-sc-"+item.strokeCol +
+											"-fc-"+item.fillCol
+										);
+		});
+	});
+
+	describe("copyStandAlonePngs()", function() {
+		it("should check that only items/icons with 'standAlone' property set to true get copied from 'pngDir' to 'standAlonePngDir'.", function() {
+			
+			var pngDir = "./tests/resources/pngs/"
+			,standAlonePngDir = "./dist/test1/tmp-copy-stand-alone-pngs/"
+			,items = [
+				{
+					filename: 'camera',
+					class: 'camera-warm',
+					standAlone: true
+				},{
+					filename: 'camera',
+					class: 'camera-cold'
+				}
+			]
+
+			testableMethods.copyStandAlonePngs( items, pngDir, standAlonePngDir );
+
+			expect( fse.existsSync( standAlonePngDir + "camera-warm.png" ) ).toBe( true );
+			expect( fse.existsSync( standAlonePngDir + "camera-cold.png" ) ).toBe( false );
+		});
 	});
 });
 

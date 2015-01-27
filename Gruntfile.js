@@ -76,8 +76,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
-	grunt.registerTask('tests', ['jasmine_node']);
+	grunt.registerTask('test', ['jasmine_node']);
 	// grunt.registerTask('test', ['copy', 'clean', 'jasmine_node']);
 
-	grunt.registerTask('default', ['jshint', 'tests', 'badass']);
+	grunt.registerTask('default', ['jshint', 'test', 'badass']);
 };

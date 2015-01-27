@@ -5,7 +5,6 @@ module.exports = function( grunt ) {
         ,spritesmith = require('spritesmith')
         ,fse = require("fs-extra")
 		,_ = require('lodash-node')
-        ,ALMOST_ZERO = "0.0001";
 
 	grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
@@ -89,7 +88,7 @@ module.exports = function( grunt ) {
 
         var icons = [];
         items.forEach(function(item) {
-            icons.push( pngDir + item.class + '.png' );
+            icons.push( pngDir + getFileBaseName(item) + '.png' );
         });
 
         spritesmith({ src: icons }, function(err, result) {
@@ -159,13 +158,26 @@ module.exports = function( grunt ) {
 
             if( item.standAlone ) {
 
-                var copyFromPath = pngDir + item.class + ".png";
-                var copyToPath = standAlonePngDir + item.class + ".png";
-                // console.log( copyFromPath, grunt.file.exists( copyFromPath ) );
+                var fileNameBase = getFileBaseName( item )
+                    ,copyFromPath = pngDir + fileNameBase + ".png"
+                    ,copyToPath = standAlonePngDir + fileNameBase + ".png";
 
                  grunt.file.copy( copyFromPath, copyToPath );
             }
         });
+    }
+
+    function getFileBaseName( item ) {
+
+        if( item.class ) return item.class;
+
+        // fileNameBase only gets used if item.class is not specified
+        var fileNameBase = item.filename.replace(".svg", "") + "-w"+item.w +"-h"+item.h;
+        if( item.strokeWidth )  fileNameBase += "-sw-"+item.strokeWidth;
+        if( item.strokeCol )    fileNameBase += "-sc-"+item.strokeCol.split("#").join("");
+        if( item.fillCol )      fileNameBase += "-fc-"+item.fillCol.split("#").join("");
+
+        return fileNameBase;
     }
 
     // to be processed by svgToPng
@@ -190,12 +202,6 @@ module.exports = function( grunt ) {
                 var baseName = filename.replace(".svg", "");
                 if( item.filename === baseName ) {
 
-                    // fileNameBase only gets used if item.class is not specified
-                    var fileNameBase = baseName + "-w"+item.w +"-h"+item.h;
-                    if( item.strokeWidth ) fileNameBase += "-sw-"+item.strokeWidth;
-                    if( item.strokeCol ) fileNameBase += "-sc-"+item.strokeCol.split("#").join("");
-                    if( item.fillCol ) fileNameBase += "-fc-"+item.fillCol.split("#").join("");
-
                     contents = originalContents;
 
                     // must remove width and height attributes so they don't get added twice, which would cause an error in svgToPng
@@ -204,24 +210,19 @@ module.exports = function( grunt ) {
 
                     contents = contents.replace("<svg ", "<svg width='"+item.w+"' height='"+item.h+"' ");
 
-                    contents = replaceTag( 'stroke-width="0.1"', "stroke-width", item.strokeWidth, contents );
-                    contents = replaceTag( 'stroke="#'+defaultCol+'"', "stroke", item.strokeCol, contents );
-                    contents = replaceTag( 'fill="#'+defaultCol+'"', "fill", (item.fillCol || "transparent"), contents );
+                    // Fill and stroke colours will be made transparent, if no config value is given for them
+                    contents = replaceTag( 'fill="#'+defaultCol+'"',    "fill",    (item.fillCol || "transparent"),   contents );
+                    contents = replaceTag( 'stroke="#'+defaultCol+'"',  "stroke",  (item.strokeCol || "transparent"), contents );
 
-                    // So SVG To PNG doesn't error, we fill in any remnants. 
-                    // Stroke width can't be zero, so we give it a teeny-tiny number that is too small to render.
-                    
-                    if( contents.indexOf('stroke-width="0.1"') !== -1 )
-                        contents = replaceTag( 'stroke-width="0.1"', "stroke-width", ALMOST_ZERO, contents );
+                    /**
+                     * If the svg uses the stroke value "0.1", we assume it is meant to be used with Grunt Badass.
+                     * Then, if the config supplies a 'strokeWidth' property, we use it, otherwise, to avoid an svgToPng error,
+                     * we give the stroke a tiny number ('almostZero') that will render invisible.
+                     */
+                    var almostZero = "0.0001";
+                    contents = replaceTag( 'stroke-width="0.1"', "stroke-width", (item.strokeWidth || almostZero),  contents );
 
-                    if( contents.indexOf('stroke="#'+defaultCol+'"') !== -1 )
-                        contents = replaceTag( 'stroke="#'+defaultCol+'"', "stroke", "transparent", contents );
-
-                    if( contents.indexOf('fill="#'+defaultCol+'"') !== -1 )
-                        contents = replaceTag( 'fill="#'+defaultCol+'"', "fill", "transparent", contents );
-                    
-                    // console.log( tmpDir + (item.class || fileNameBase) + ".svg" );
-                    grunt.file.write( tmpDir + (item.class || fileNameBase) + ".svg", contents );
+                    grunt.file.write( tmpDir + getFileBaseName(item) + ".svg", contents );
                 }
             }
         });
@@ -385,6 +386,8 @@ module.exports = function( grunt ) {
             ,replaceTag: replaceTag
             ,removeAttr: removeAttr
             ,coloursAndSizes: coloursAndSizes
+            ,getFileBaseName: getFileBaseName
+            ,copyStandAlonePngs: copyStandAlonePngs
         }
     }
 }
