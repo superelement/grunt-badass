@@ -168,7 +168,7 @@ module.exports = function( grunt ) {
         });
     }
 
-    // to be processed by pngToSvg
+    // to be processed by svgToPng
 	function coloursAndSizes( defaultCol, src, items, tmpDir ) {
 
         grunt.file.recurse( src, function(abspath, rootdir, subdir, filename) {
@@ -179,6 +179,7 @@ module.exports = function( grunt ) {
                 contents = '<?xml version="1.0" encoding="utf-8"?>\n' + contents;
 
             contents = contents.split("<symbol").join("<g").split("</symbol").join("</g");
+            
             if( contents.indexOf("xmlns=") == -1 )
                 contents = contents.split("<svg ").join('<svg xmlns="http://www.w3.org/2000/svg" ');
 
@@ -209,7 +210,7 @@ module.exports = function( grunt ) {
 
                     // So SVG To PNG doesn't error, we fill in any remnants. 
                     // Stroke width can't be zero, so we give it a teeny-tiny number that is too small to render.
-
+                    
                     if( contents.indexOf('stroke-width="0.1"') !== -1 )
                         contents = replaceTag( 'stroke-width="0.1"', "stroke-width", ALMOST_ZERO, contents );
 
@@ -249,7 +250,7 @@ module.exports = function( grunt ) {
         return str;
     }
 
-    function replaceTag( tag, attrName, val, contents, warningCB ) {
+    function replaceTag( tag, attrName, val, contents ) {
 
         if( val ) {
             if( contents.indexOf( tag ) !== -1 )
@@ -351,6 +352,13 @@ module.exports = function( grunt ) {
         // 4. If you want to escape a "/", you must make it "\/"
         // 5. If you want to escape an "*", you must make it "\\*"
 
+        // replace special characters that can cause problems in regex
+        if( rxStart.indexOf("?") != -1 )    rxStart = rxStart.split("?").join("\\?");
+        if( rxEnd.indexOf("?") != -1 )      rxEnd = rxEnd.split("?").join("\\?");
+
+        if( rxStart.indexOf("*") != -1 )    rxStart = rxStart.split("*").join("\\*");
+        if( rxEnd.indexOf("*") != -1 )      rxEnd = rxEnd.split("*").join("\\*");
+
         var rx = new RegExp( rxStart + "[\\d\\D]*?" + rxEnd, "g");
 
         // console.log( originalString.substr( rx ) );
@@ -374,6 +382,9 @@ module.exports = function( grunt ) {
             ,replaceBetween: replaceBetween
             ,saveScss: saveScss
             ,copySafeSrc: copySafeSrc
+            ,replaceTag: replaceTag
+            ,removeAttr: removeAttr
+            ,coloursAndSizes: coloursAndSizes
         }
     }
 }
