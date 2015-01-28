@@ -12,6 +12,7 @@ module.exports = function(grunt) {
 		,badass: {
 			// Load in different targets
 			test1: require("./test1.js").test
+			,test2: require("./test2.js").test
 		}
 	});
 

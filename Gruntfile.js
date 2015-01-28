@@ -30,7 +30,6 @@ module.exports = function(grunt) {
 				src: ["tests/**/*spec.js"] // for coverage
 				,options: {
 					coverage: {} // using istanbul defaults
-					,forceExit: true
 					,specFolders: ['tests']
 					,captureExceptions: true
 					,showColors: true
@@ -50,10 +49,6 @@ module.exports = function(grunt) {
 					,spriteUrl: "/_dist/deploy/img/sprites/dmicon-s501a7eb4b9.png"
 					,spriteOutput: "dist/sprite.png"
 
-					// Default is false. Will add compass sprite snippet to top of scss.
-					// Only change this to true if your project uses compass sprites and you want to merge badass icons into the main project sprite.
-					,includeCompassSpriteStyles: true
-
 					,svgDir: "tmp/myicons-svgs/"
 					,scssOutput: "dist/icons.scss" // this would be ".css" if not using scss in your project
 					,items: [
@@ -69,7 +64,7 @@ module.exports = function(grunt) {
 		}
 
 		,clean: {
-			tests: ["dist/test1", "dist/test2"]
+			tests: ["dist/test1", "dist/test2",  "dist/test3"]
 		}
 
 	});

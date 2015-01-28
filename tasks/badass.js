@@ -84,7 +84,9 @@ module.exports = function( grunt ) {
                         done();
                     }
                     else {
-                        generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.scssOutput, config.items, pngDir, done);
+                        generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.scssOutput, config.items, pngDir, function() {
+                            fse.remove( pngDir, done );
+                        });
                     }
                 }
             });

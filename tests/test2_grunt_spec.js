@@ -7,7 +7,7 @@ var _ = require("lodash-node")
 	,cwd = process.cwd()
 
 
-describe("test 1 - check generated files and folders", function() {
+describe("test 2 - check generated files and folders", function() {
 
 	var originalTimeout;
 
@@ -25,37 +25,33 @@ describe("test 1 - check generated files and folders", function() {
 	 * Lodash template used just for converting path vars
 	 */
 	var rootDirObj = { rootDir: "./" }
-		,config = require("./grunt_configs/test1.js").test
-		,COMPASS_SPRITE_DIR = _.template( config.dest, rootDirObj )
+		,config = require("./grunt_configs/test2.js").test
+		,DEST = _.template( config.dest, rootDirObj )
 		,STAND_ALONE_PNG_DIR = _.template( config.options.standAlonePngDir, rootDirObj )
-		,PNG_DIR = COMPASS_SPRITE_DIR+config.options.cssPrefix+"/";
+		,PNG_DIR = DEST+config.options.cssPrefix+"/";
 	
-	gruntTest(1);
+	gruntTest(2);
 
 
 	it("should check task resources exist", function() {
-		expect( fse.existsSync("./tasks/resources/icons-compass-sprite.scss") ).toBe( true );
 		expect( fse.existsSync("./tasks/resources/icons.css") ).toBe( true );
 		expect( fse.existsSync("./tasks/resources/svgloader.js") ).toBe( true );
 	});
 
 
-	it("should have created a scss file for icons which should no longer contains any template syntax.", function() {		
+	it("should have created a css file for icons which should no longer contains any template syntax, then lint the styles.", function(done) {		
 
-		expect( fse.existsSync(COMPASS_SPRITE_DIR+"icons.scss") ).toBe( true );
+		expect( fse.existsSync(DEST+"icons.css") ).toBe( true );
 
-		var css = fse.readFileSync(COMPASS_SPRITE_DIR+"icons.scss").toString();
+		var css = fse.readFileSync(DEST+"icons.css").toString();
 		expect( css.indexOf("<%=") ).toEqual(-1);
+
+		lintCSS( done, css );
 	});
 
 
-	it( "should check that all SVG icons have had corresponding PNGs generated", function() {
-		expect( fse.existsSync(PNG_DIR) ).toBe( true );
-		
-		config.options.items.forEach( function(item, i) {
-			var pngIcon = PNG_DIR+item.class+".png";
-			expect( fse.existsSync(pngIcon) ).toBe( true );
-		});
+	it( "should check that 'pngDir' has been removed", function() {
+		expect( fse.existsSync(PNG_DIR) ).toBe( false );
 	});
 
 
@@ -69,11 +65,8 @@ describe("test 1 - check generated files and folders", function() {
 		});
 	});
 
-
-	// TODO: test file names are css compatible
-
 	it("should have copied the `svgloader.js` file into dist.", function() {		
-		expect( fse.existsSync(COMPASS_SPRITE_DIR+"svgloader.js") ).toBe( true );
+		expect( fse.existsSync(DEST+"svgloader.js") ).toBe( true );
 	});
 
 });
@@ -83,5 +76,29 @@ function gruntTest( number ) {
 	process.chdir("tests/grunt_configs/");
 	var result = shell.exec("grunt badass:test"+number, {silent:true});
 	process.chdir(cwd);
+}
+
+function lintCSS( done, returnedStr ) {
+	// Now we lint the CSS
+	var parser = new parserlib.css.Parser();
+
+	// will get changed to true in error handler if errors detected
+	var errorsFound = false;
+
+	parser.addListener("error", function(event){
+	    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
+	    errorsFound = true;
+	});
+
+	parser.addListener("endstylesheet", function(){
+	    console.log("Finished parsing style sheet");
+
+		expect( errorsFound ).toBe( false );
+
+		// finish the test
+	    done();
+	});
+	
+	parser.parse( returnedStr );
 }
 

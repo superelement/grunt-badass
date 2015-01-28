@@ -4,9 +4,10 @@ var _ = require("lodash-node")
 	,fse = require("fs-extra")
 	,parserlib = require("parserlib") // for linting CSS
 	,cwd = process.cwd()
-	,DEF_COL = "BADA55";
+	,DEF_COL = "BADA55"
+	,TEST_DIR = "./dist/test3/";
 
-describe("test 2 - badass testable methods", function() {
+describe("test 3 - badass testable methods", function() {
 
 	var badass = require("../tasks/badass.js")
 		,testableMethods = badass( require("grunt") ).tests
@@ -167,7 +168,7 @@ describe("test 2 - badass testable methods", function() {
 					,h:41
 					,strokeCol: "#999"
 				}]
-				,scssOutput = cwd + "/dist/test2/tmp/icons.css"
+				,scssOutput = TEST_DIR + "tmp/icons.css"
 				// can only lint if 'includeCompassSpriteStyles' is false, as it will add scss specific styles
 				,includeCompassSpriteStyles = false;
 
@@ -186,7 +187,7 @@ describe("test 2 - badass testable methods", function() {
 	describe("copySafeSrc()", function() {
 
 		var srcPath = "./tests/resources/svgs/"
-			,destPath = "./dist/test2/safe-svgs/";
+			,destPath = TEST_DIR + "safe-svgs/";
 
 		testableMethods.copySafeSrc( DEF_COL, srcPath, destPath );
 
@@ -272,8 +273,8 @@ describe("test 2 - badass testable methods", function() {
 
 		it("should check that xml header has been added to svg, if missing", function() {
 			
-			var tempSrc = "./dist/test2/tmp-colours-and-sizes-xml/"
-				,svgTempDir = "./dist/test2/tmp-svgs-xml/";
+			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-xml/"
+				,svgTempDir = TEST_DIR + "tmp-svgs-xml/";
 
 			createTempSrc( "xml", "camera.svg" );
 			replaceBetweenSvg( "xml", "camera.svg", "<?xml", "?>" );
@@ -291,8 +292,8 @@ describe("test 2 - badass testable methods", function() {
 		});
 
 		it("should check that <symbol> tags have been replaced by <g> tags", function() {
-			var tempSrc = "./dist/test2/tmp-colours-and-sizes-symbol/"
-				,svgTempDir = "./dist/test2/tmp-svgs-symbol/";
+			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-symbol/"
+				,svgTempDir = TEST_DIR + "tmp-svgs-symbol/";
 
 			// make sure svg has a <symbol> tag
 			createTempSrc( "symbol", "camera.svg" );
@@ -317,8 +318,8 @@ describe("test 2 - badass testable methods", function() {
 		});
 
 		it("should check that 'xmlns' attribute is present on the <svg> tag", function() {
-			var tempSrc = "./dist/test2/tmp-colours-and-sizes-xmlns/"
-				,svgTempDir = "./dist/test2/tmp-svgs-xmlns/"
+			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-xmlns/"
+				,svgTempDir = TEST_DIR + "tmp-svgs-xmlns/"
 
 			createTempSrc( "xmlns", "camera.svg" );
 			replaceBetweenSvg( "xmlns", "camera.svg", 'xmlns="', '"' );
@@ -340,7 +341,7 @@ describe("test 2 - badass testable methods", function() {
 			 * If 'class' is specified, it should use it as the file name
 			 */
 
-			var svgTempDir = "./dist/test2/tmp-svgs-classes1/";
+			var svgTempDir = TEST_DIR + "tmp-svgs-classes1/";
 
 			testableMethods.coloursAndSizes( DEF_COL, svgSrcDir, items, svgTempDir );
 
@@ -354,7 +355,7 @@ describe("test 2 - badass testable methods", function() {
 			 * If 'class' not specified, it should create a base name from file name, width, height, fill and stroke values
 			 */
 
-			var svgTempDir = "./dist/test2/tmp-svgs-classes2/"
+			var svgTempDir = TEST_DIR + "tmp-svgs-classes2/"
 				,item = {
 					filename: 'camera'
 					,class: null
@@ -373,7 +374,7 @@ describe("test 2 - badass testable methods", function() {
 			 * If width and height attributes exist more than once on an svg, it screws up svgToPng
 			 */
 
-			var svgTempDir = "./dist/test2/tmp-svgs-wh/";
+			var svgTempDir = TEST_DIR + "tmp-svgs-wh/";
 
 			testableMethods.coloursAndSizes( DEF_COL, svgSrcDir, items, svgTempDir );
 
@@ -389,7 +390,7 @@ describe("test 2 - badass testable methods", function() {
 		});
 
 		it("should check that fill colour, stroke colour & stroke width get replaced with config values", function() {
-			var svgTempDir = "./dist/test2/tmp-svgs-stroke-col/"
+			var svgTempDir = TEST_DIR + "tmp-svgs-stroke-col/"
 				,item = {
 					filename: 'camera'
 					,class: "camera-cold"
@@ -410,7 +411,7 @@ describe("test 2 - badass testable methods", function() {
 
 
 		it("should check that stroke and fill colours get replaced with 'transparent' and stroke width an 'almostZero' number when omitted from config", function() {
-			var svgTempDir = "./dist/test2/tmp-svgs-stroke-trans/"
+			var svgTempDir = TEST_DIR + "tmp-svgs-stroke-trans/"
 				,item = {
 					filename: 'camera'
 					,class: "camera-cold"
@@ -433,7 +434,7 @@ describe("test 2 - badass testable methods", function() {
 		
 
 		function createTempSrc( testId, svgFileName ) {
-			var tempSrc = "./dist/test2/tmp-colours-and-sizes-"+testId+"/"
+			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-"+testId+"/"
 
 			// copy files to a temp folder so we can modify them for test only
 			fse.ensureDirSync( tempSrc );
@@ -441,7 +442,7 @@ describe("test 2 - badass testable methods", function() {
 		}
 
 		function replaceBetweenSvg( testId, svgFileName, start, end ) {
-			var tempSrc = "./dist/test2/tmp-colours-and-sizes-"+testId+"/"
+			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-"+testId+"/"
 
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
@@ -450,7 +451,7 @@ describe("test 2 - badass testable methods", function() {
 		}
 
 		function replacePartSvg( testId, svgFileName, orig, repl ) {
-			var tempSrc = "./dist/test2/tmp-colours-and-sizes-"+testId+"/"
+			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-"+testId+"/"
 
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
@@ -491,7 +492,7 @@ describe("test 2 - badass testable methods", function() {
 		it("should check that only items/icons with 'standAlone' property set to true get copied from 'pngDir' to 'standAlonePngDir'.", function() {
 			
 			var pngDir = "./tests/resources/pngs/"
-			,standAlonePngDir = "./dist/test2/tmp-copy-stand-alone-pngs/"
+			,standAlonePngDir = TEST_DIR + "tmp-copy-stand-alone-pngs/"
 			,items = [
 				{
 					filename: 'camera',
@@ -515,8 +516,8 @@ describe("test 2 - badass testable methods", function() {
 
 			var spriteUrl = "/some/path/to/sprite.png"
 			,cssPrefix = "bad"
-			,scssOutput = "./dist/test2/tmp-generate-sprite/icons.css"
-			,spriteOutput = "./dist/test2/tmp-generate-sprite/sprite.png"
+			,scssOutput = TEST_DIR + "tmp-generate-sprite/icons.css"
+			,spriteOutput = TEST_DIR + "tmp-generate-sprite/sprite.png"
 			,pngDir = "./tests/resources/pngs/"
 			,items = [
 				{

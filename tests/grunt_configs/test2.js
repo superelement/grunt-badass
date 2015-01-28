@@ -1,18 +1,18 @@
 exports.test = {
 	src: '<%= rootDir %>tests/resources/'
-	,dest: "<%= rootDir %>dist/test1/compass-sprite-prep/"
+	,dest: "<%= rootDir %>dist/test2/"
 	,options: {
 		cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
 
 		// if 'standAlone' is marked as true, files will get copied to this directory
-		,standAlonePngDir: "<%= rootDir %>dist/test1/singles/"
+		,standAlonePngDir: "<%= rootDir %>dist/test2/singles/"
+		
+		// final url for sprite
+		,spriteUrl: "/absolute/url/to/sprite.png"
+		,spriteOutput: "<%= rootDir %>dist/test2/sprite.png"
 
-		// Default is false. Will add compass sprite snippet to top of scss.
-		// Only change this to true if your project uses compass sprites and you want to merge badass icons into the main project sprite.
-		,includeCompassSpriteStyles: true
-
-		,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
-		,scssOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.scss"
+		,svgDir: "<%= rootDir %>tmp/test2/myicons-svgs/"
+		,scssOutput: "<%= rootDir %>dist/test2/icons.css"
 		,cwd: "<%= rootDir %>"
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
