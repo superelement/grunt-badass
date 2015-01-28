@@ -1,7 +1,12 @@
 module.exports = function( grunt ) {
 	"use strict";
 
-    // TODO: add more checks for options and items and give errors or warnings
+    /**
+     * TODO:
+     * - add more checks for options and items and give errors or warnings
+     * - incorporate svgmin, svgstore and insert-svgdefs
+     * - maybe change dependant npm modules from `devDependencies` to `dependencies`, so they download when doing `npm install`. Need to check this.
+     */
 
 	var svgToPng = require('svg-to-png')
         ,spritesmith = require('spritesmith')
