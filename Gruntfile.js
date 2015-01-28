@@ -50,7 +50,7 @@ module.exports = function(grunt) {
 					,spriteOutput: "dist/sprite.png"
 
 					,svgDir: "tmp/myicons-svgs/"
-					,scssOutput: "dist/icons.scss" // this would be ".css" if not using scss in your project
+					,stylesOutput: "dist/icons.scss" // this would be ".css" if not using scss in your project
 					,items: [
 						 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
 						,{ filename: "camera", class: "camera-cold", w: 50, h:44, fillCol: "blue", standAlone: true }

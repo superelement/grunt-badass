@@ -168,17 +168,17 @@ describe("test 3 - badass testable methods", function() {
 					,h:41
 					,strokeCol: "#999"
 				}]
-				,scssOutput = TEST_DIR + "tmp/icons.css"
+				,stylesOutput = TEST_DIR + "tmp/icons.css"
 				// can only lint if 'includeCompassSpriteStyles' is false, as it will add scss specific styles
 				,includeCompassSpriteStyles = false;
 
-			testableMethods.saveScss( includeCompassSpriteStyles, cssPrefix, cwd + "/", scssOutput, items );
+			testableMethods.saveScss( includeCompassSpriteStyles, cssPrefix, cwd + "/", stylesOutput, items );
 
 			// ensure file exists before reading it
-			expect( fse.existsSync( scssOutput ) ).toBe( true );
+			expect( fse.existsSync( stylesOutput ) ).toBe( true );
 
 			// Lint it to make sure it is valid CSS
-			var css = fse.readFileSync( scssOutput ).toString();
+			var css = fse.readFileSync( stylesOutput ).toString();
 			lintCSS( done, css )
 		});
 	});
@@ -516,7 +516,7 @@ describe("test 3 - badass testable methods", function() {
 
 			var spriteUrl = "/some/path/to/sprite.png"
 			,cssPrefix = "bad"
-			,scssOutput = TEST_DIR + "tmp-generate-sprite/icons.css"
+			,stylesOutput = TEST_DIR + "tmp-generate-sprite/icons.css"
 			,spriteOutput = TEST_DIR + "tmp-generate-sprite/sprite.png"
 			,pngDir = "./tests/resources/pngs/"
 			,items = [
@@ -536,13 +536,13 @@ describe("test 3 - badass testable methods", function() {
 			];
 
 			// first create an empty css file, so we can modify it. In the plugin, this is done before calling this method.
-			fse.outputFileSync( scssOutput, "" );
+			fse.outputFileSync( stylesOutput, "" );
 
-			testableMethods.generateSprite( spriteUrl, spriteOutput, cssPrefix, scssOutput, items, pngDir, function() {
+			testableMethods.generateSprite( spriteUrl, spriteOutput, cssPrefix, stylesOutput, items, pngDir, function() {
 				
 				expect( fse.existsSync(spriteOutput) ).toBe( true );
-				expect( fse.existsSync(scssOutput) ).toBe( true );
-				lintCSS(done, fse.readFileSync(scssOutput) );
+				expect( fse.existsSync(stylesOutput) ).toBe( true );
+				lintCSS(done, fse.readFileSync(stylesOutput) );
 			});
 		});
 	});

@@ -1,6 +1,8 @@
 module.exports = function( grunt ) {
 	"use strict";
 
+    // TODO: add more checks for options and items and give errors or warnings
+
 	var svgToPng = require('svg-to-png')
         ,spritesmith = require('spritesmith')
         ,fse = require("fs-extra")
@@ -14,15 +16,12 @@ module.exports = function( grunt ) {
             ,spriteUrl: null
             ,spriteOutput: null
             ,svgDir: "myicons-svgs/"
-			,scssOutput: "_myicons.css"
+			,stylesOutput: "_myicons.css"
             ,includeCompassSpriteStyles: false
             ,defaultWidth: "10px"
             ,defaultHeight: "10px"
             ,defaultCol: "BADA55"
-            ,items: [
-                 // { filename: "halo", class: "halo-md-gold", w: 64, h:64, strokeWidth: 10, strokeCol: "#ff00ff" }
-                // ,{ filename: "bitbucket", class: "bitbucket-sm-red", w: 30, h:30, fillCol: "#00ff00" }
-            ]
+            ,items: []
             ,tmpDir: "./tmp/"
             ,cwd: null
 		});
@@ -66,7 +65,7 @@ module.exports = function( grunt ) {
             checkCSSCompatibleFileNames( src );
             coloursAndSizes( config.defaultCol, src, config.items, config.tmpDir );
             copySafeSrc( config.defaultCol, src, config.svgDir );
-            saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.cwd, config.scssOutput, config.items );
+            saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.cwd, config.stylesOutput, config.items );
 
             svgToPng.convert( config.tmpDir, fileObj.dest, opts )
             .then( function( result , err ){
@@ -84,7 +83,7 @@ module.exports = function( grunt ) {
                         done();
                     }
                     else {
-                        generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.scssOutput, config.items, pngDir, function() {
+                        generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.stylesOutput, config.items, pngDir, function() {
                             fse.remove( pngDir, done );
                         });
                     }
@@ -122,7 +121,7 @@ module.exports = function( grunt ) {
     }
 
 
-    function generateSprite( spriteUrl, spriteOutput, cssPrefix, scssOutput, items, pngDir, done ) {
+    function generateSprite( spriteUrl, spriteOutput, cssPrefix, stylesOutput, items, pngDir, done ) {
 
         var icons = [];
         items.forEach(function(item) {
@@ -135,7 +134,7 @@ module.exports = function( grunt ) {
 
             fse.outputFileSync( spriteOutput, result.image, 'binary' );
 
-            var scss = fse.readFileSync( scssOutput );
+            var scss = fse.readFileSync( stylesOutput );
 
             // console.log( result.coordinates );
             // console.log( result.properties );
@@ -183,7 +182,7 @@ module.exports = function( grunt ) {
                     return rtn;
                 })(result.coordinates);
 
-            fse.outputFileSync( scssOutput, scss );
+            fse.outputFileSync( stylesOutput, scss );
             
             done();
         });
@@ -317,7 +316,7 @@ module.exports = function( grunt ) {
         });
     }
 
-    function saveScss( includeCompassSpriteStyles, cssPrefix, cwd, scssOutput, items ) {
+    function saveScss( includeCompassSpriteStyles, cssPrefix, cwd, stylesOutput, items ) {
 
         var scss = "";
 
@@ -335,7 +334,7 @@ module.exports = function( grunt ) {
         // Think this does nothing
         // scss = scss.split( ALMOST_ZERO ).join("0");
 
-        grunt.file.write( scssOutput, scss );
+        grunt.file.write( stylesOutput, scss );
     }
 
 

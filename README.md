@@ -20,10 +20,54 @@ grunt.loadNpmTasks('grunt-badass');
 *This plugin was designed to work with Grunt 0.4.5. It will not work with v0.3.x.*
 
 ## 'badass' task
-TODO
+### src
+> Local path to a folder containing `.svg` files
+
+### dest
+> Local path that you want all your generated files to be exported to
+
+### options
+#### items {array of objects}
+> Each object in this array must follow this format.
+```js
+{ filename: "camera", class: "camera-cold", w: 50, h:44, fillCol: "#4183c4", standAlone: true }
+```
+- filename {string} - the name of the svg file without the extension.
+- class {string} optional - the modified svg's name. This will be the css class name used and the file name for and pngs generated during the build. If omitted an auto-generated name will be created. Recommendation is to include this option.
+- w {number} - width of the svg in pixels. It is up to you to work out the w/h ratio.
+- h {number} - height of the svg in pixels. It is up to you to work out the w/h ratio.
+- fillCol {string} optional - hex or css colour value that you want to replace the `#BADA55` fluro green with for the fill colour.
+- strokeCol {string} optional - hex or css colour value that you want to replace the `#BADA55` fluro green with for the stroke colour.
+- strokeWidth {string} optional - width in pixels of the stroke that you want to alter. If the stroke is set to `0.1pt` in the svg, it will be affected by this.
+- standAlone {boolean} optional - if you want a copy of the png as a stand alone file as well. It will still be included in the sprite.
+
+#### cssPrefix {string}
+> A class prefix for your sprite's icons. Keep it short, as it will appear on all badass svg classes.
+
+#### standAlonePngDir {string}
+> Local path to the folder that will contain any icons marked as 'stand alone' (in each icon config you can set this with `standAlone:true`).
+
+#### spriteUrl {string}
+> The absolute path to your sprite, which will get embedded into your CSS or SCSS styles.
+
+#### spriteOutput {string}
+> The local path you want your sprite exported to, including the name of the sprite.
+
+#### svgDir {string}
+> Copies original svgs to be processed by svgmin, removing references to BADASS for modern browsers
+
+#### includeCompassSpriteStyles {boolean}
+> Default is false. Will add compass sprite snippet to top of scss. Only change this to true if your project uses compass sprites and you want to merge badass icons into the main project sprite.
+
+#### stylesOutput {string}
+> Local path to `.css` or `.scss` file that contains sprite data. If using compass sprites and scss, this should be a `.scss` file and `includeCompassSpriteStyles:true` option should also be set.
+
+#### cwd
+> Will default to the current working directory, but you can change it if you need to
+
 
 ### SVG naming convention
-- File names will generate css class names as part of build. Please keep them short, all lowercase and without any spaces, hyphens or underscores. 
+- File names will generate css class names as part of build. Please keep them short, all lowercase and without any spaces. They must fall within the regex 'a-z\-\_0-9' and not start with a number. 
 
 ### SVG definitions
 These SVGs get processed into a single js `svgloader.js`, which dynamically embeds the SVG inline just after the body tag is opened.

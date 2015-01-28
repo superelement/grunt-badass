@@ -12,7 +12,7 @@ exports.test = {
 		,spriteOutput: "<%= rootDir %>dist/test2/sprite.png"
 
 		,svgDir: "<%= rootDir %>tmp/test2/myicons-svgs/"
-		,scssOutput: "<%= rootDir %>dist/test2/icons.css"
+		,stylesOutput: "<%= rootDir %>dist/test2/icons.css"
 		,cwd: "<%= rootDir %>"
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }

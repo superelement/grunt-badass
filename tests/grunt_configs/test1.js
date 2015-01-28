@@ -12,7 +12,7 @@ exports.test = {
 		,includeCompassSpriteStyles: true
 
 		,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
-		,scssOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.scss"
+		,stylesOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.scss"
 		,cwd: "<%= rootDir %>"
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
