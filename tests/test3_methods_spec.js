@@ -447,7 +447,7 @@ describe("test 3 - badass testable methods", function() {
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
 			svgContents = testableMethods.replaceBetween(start, end, svgContents );
-			fse.outputFile( tempSrc + svgFileName, svgContents );
+			fse.outputFileSync( tempSrc + svgFileName, svgContents );
 		}
 
 		function replacePartSvg( testId, svgFileName, orig, repl ) {
@@ -456,7 +456,7 @@ describe("test 3 - badass testable methods", function() {
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
 			svgContents = svgContents.split( orig ).join( repl );
-			fse.outputFile( tempSrc + svgFileName, svgContents );
+			fse.outputFileSync( tempSrc + svgFileName, svgContents );
 		}
 	});
 

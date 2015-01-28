@@ -11,7 +11,7 @@ exports.test = {
 		// Only change this to true if your project uses compass sprites and you want to merge badass icons into the main project sprite.
 		,includeCompassSpriteStyles: true
 
-		,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
+		// ,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
 		,stylesOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.scss"
 		,cwd: "<%= rootDir %>"
 		,items: [

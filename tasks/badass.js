@@ -3,20 +3,24 @@ module.exports = function( grunt ) {
 
     // TODO: add more checks for options and items and give errors or warnings
 
-	var svgToPng = require('svg-to-png')
+
+
+    var svgToPng = require('svg-to-png')
         ,spritesmith = require('spritesmith')
         ,fse = require("fs-extra")
-		,_ = require('lodash-node');
+        ,_ = require('lodash-node')
+        ,SVGO = require('svgo');
 
-	grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
+    grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
-		var config = this.options({
+
+        var config = this.options({
             cssPrefix: "bad"
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,spriteUrl: null
             ,spriteOutput: null
-            ,svgDir: "myicons-svgs/"
-			,stylesOutput: "_myicons.css"
+            // ,svgDir: "myicons-svgs/"
+            ,stylesOutput: "_myicons.css"
             ,includeCompassSpriteStyles: false
             ,defaultWidth: "10px"
             ,defaultHeight: "10px"
@@ -24,7 +28,26 @@ module.exports = function( grunt ) {
             ,items: []
             ,tmpDir: "./tmp/"
             ,cwd: null
-		});
+            ,svgoPlugins: [
+                /**
+                 * Removed all 'convert' options as caused VERY weird error when deployed to UAT (production) apache server.
+                 * Certain combinations of numbers would display as ********** asterisk characters.
+                 * Didn't matter what the file type was either - tried .txt, .js, .css and .jsp.
+                 */
+                 { convertPathData: false }
+                ,{ convertStyleToAttrs: false }
+                ,{ convertTransform: false }
+                ,{ convertShapeToPath: false }
+                ,{
+                    // want to keep rounded edges on strokes
+                    removeUselessStrokeAndFill: false
+                }
+                ,{
+                    // want to keep stroke and fille "none" values
+                    removeUnknownsAndDefaults: false
+                }
+            ]
+        });
 
         // sets the current working directory ("cwd") if not defined in config
         if(!config.cwd) config.cwd = process.cwd();
@@ -37,20 +60,18 @@ module.exports = function( grunt ) {
         // empty the temp folder if exists
         if( grunt.file.exists(config.tmpDir) )
             grunt.file.delete( config.tmpDir, { force: true });
+        
 
-		var done = this.async();
-		grunt.log.writeln( "BADASS".yellow );
+        var done = this.async();
+        grunt.log.writeln( "BADASS".yellow );
 
-		var fileObj = this.files[0];
+        var fileObj = this.files[0];
 
-		if( fileObj.src.length === 0 ) {
-			grunt.log.error( "BADASS needs at least 1 src directory!".red );
-			done();
-			return;
-		}
-
-        fse.ensureDirSync( fileObj.dest );
-        fse.copySync( config.cwd + "tasks/resources/svgloader.js", fileObj.dest + "svgloader.js" );
+        if( fileObj.src.length === 0 ) {
+            grunt.log.error( "BADASS needs at least 1 src directory!".red );
+            done();
+            return;
+        }
 
         var opts = {
             pngfolder: config.cssPrefix
@@ -58,16 +79,31 @@ module.exports = function( grunt ) {
             ,defaultHeight: config.defaultHeight
         };
 
+        var svgDir = config.tmpDir + "svgs/";
+
+        // Waits for all async 'done' callbacks to complete
+        var doneCount = 0
+        ,fullyDone = function() {
+            doneCount++;
+            if(doneCount>=2) {
+                console.log( "log" );
+                runSvgLoaderGruntTasks( config.cssPrefix, svgDir + "min/", fileObj.dest, config.tmpDir );
+                done();
+            }
+        }
+
         var cnt = 0;
         _.forEach( fileObj.src, function( src ) {
             cnt++;
 
             checkCSSCompatibleFileNames( src );
-            coloursAndSizes( config.defaultCol, src, config.items, config.tmpDir );
-            copySafeSrc( config.defaultCol, src, config.svgDir );
+            coloursAndSizes( config.defaultCol, src, config.items, svgDir + "unmin-coloured/" );
+            copySafeSrc( config.defaultCol, src, svgDir, config.svgoPlugins, fullyDone );
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.cwd, config.stylesOutput, config.items );
 
-            svgToPng.convert( config.tmpDir, fileObj.dest, opts )
+
+
+            svgToPng.convert( svgDir + "unmin-coloured/", fileObj.dest, opts )
             .then( function( result , err ){
                 if( err ) grunt.fatal( err );
 
@@ -76,15 +112,15 @@ module.exports = function( grunt ) {
 
                 if( cnt >= fileObj.src.length ) {
                     // empty the temp folder
-                    grunt.file.delete( config.tmpDir, { force: true });
+                    // grunt.file.delete( config.tmpDir, { force: true });
 
                     if(!config.spriteUrl || !config.spriteOutput) {
                         grunt.log.warn( "'spriteUrl' or 'spriteOutput' not specified. No sprite generared." );
-                        done();
+                        fullyDone();
                     }
                     else {
                         generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.stylesOutput, config.items, pngDir, function() {
-                            fse.remove( pngDir, done );
+                            fse.remove( pngDir, fullyDone );
                         });
                     }
                 }
@@ -218,7 +254,7 @@ module.exports = function( grunt ) {
     }
 
     // to be processed by svgToPng
-	function coloursAndSizes( defaultCol, src, items, tmpDir ) {
+	function coloursAndSizes( defaultCol, src, items, svgDir ) {
 
         grunt.file.recurse( src, function(abspath, rootdir, subdir, filename) {
 
@@ -259,7 +295,7 @@ module.exports = function( grunt ) {
                     var almostZero = "0.0001";
                     contents = replaceTag( 'stroke-width="0.1"', "stroke-width", (item.strokeWidth || almostZero),  contents );
 
-                    grunt.file.write( tmpDir + getFileBaseName(item) + ".svg", contents );
+                    grunt.file.write( svgDir + getFileBaseName(item) + ".svg", contents );
                 }
             }
         });
@@ -300,19 +336,49 @@ module.exports = function( grunt ) {
 
 
     // copies original svgs to be processed by svgmin, removing references to BADASS for modern browsers
-    function copySafeSrc( defaultCol, src, dest ) {
+    function copySafeSrc( defaultCol, src, svgDir, svgoPlugins, done ) {
+
+        var svgo = new SVGO({ plugins:svgoPlugins });
+        var totalCount = 0;
+        var contentsArr = [];
+        // var totalSaved = 0;
 
         grunt.file.recurse( src, function(abspath, rootdir, subdir, filename) {
 
             if( filename.indexOf(".svg") != -1 ) {
+
+                totalCount++;
+
                 var contents = grunt.file.read( abspath );
 
                 contents = contents.split('stroke-width="0.1"').join("");
                 contents = contents.split('stroke="#'+defaultCol+'"').join("");
                 contents = contents.split('fill="#'+defaultCol+'"').join("");
 
-                grunt.file.write( dest + filename, contents );
+                // if not using svgo, write svgs into svgDir
+                grunt.file.write( svgDir + "unmin/" + filename, contents );
+
+                contentsArr.push( {contents: contents, filename: filename} );
             }
+        });
+
+        var count = 0;
+        contentsArr.forEach(function(obj) {
+            
+            svgo.optimize(obj.contents, function (result) {
+                if (result.error) {
+                    return grunt.warn('Error parsing SVG: ' + result.error);
+                }
+
+                grunt.file.write( svgDir + "min/" + obj.filename, result.data );
+
+                count++;
+                console.log( count, totalCount)
+                if(count>=totalCount) {
+                    console.log( "done")
+                    done();
+                }
+            });
         });
     }
 
@@ -411,6 +477,43 @@ module.exports = function( grunt ) {
         }
 
         return result;
+    }
+
+    function runSvgLoaderGruntTasks( cssPrefix, svgDir, dest, tmpDir ) {
+
+        /**
+         * This task only has a grunt implementation, so need to run it as a grunt task
+         */
+
+        grunt.loadNpmTasks("grunt-svgstore");
+
+        var files = {};
+        files[ tmpDir+"svgdefs.min.svg" ] = svgDir+"*.svg";
+
+        grunt.config.data.svgstore = {
+            badass: {
+                options: {
+                    prefix : cssPrefix+'-'
+                }
+                ,files: files
+            }
+        }
+
+        grunt.registerTask("badass-post-svgstore", "Part of 'grunt-badass' plugin. Runs after 'svgstore:badass'.", function() {
+
+            var contents = fse.readFileSync("tasks/resources/svgloader.js")
+                ,svgDefs = fse.readFileSync(tmpDir+"svgdefs.min.svg");
+
+            fse.removeSync( svgDir+"svgdefs.min.svg" );
+            fse.removeSync( tmpDir );
+            
+            contents = _.template( contents, { "svgDefs":svgDefs } );
+
+            fse.outputFileSync( dest + "svgloader.js", contents )
+        });
+
+        grunt.task.run(["svgstore:badass", "badass-post-svgstore"]);
+
     }
 
     // Returns a 'tests' object for unit testing purposes only

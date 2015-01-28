@@ -49,7 +49,7 @@ module.exports = function(grunt) {
 					,spriteUrl: "/_dist/deploy/img/sprites/dmicon-s501a7eb4b9.png"
 					,spriteOutput: "dist/sprite.png"
 
-					,svgDir: "tmp/myicons-svgs/"
+					// ,svgDir: "dist/tmp/myicons-svgs/"
 					,stylesOutput: "dist/icons.scss" // this would be ".css" if not using scss in your project
 					,items: [
 						 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }

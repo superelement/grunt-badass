@@ -21,7 +21,7 @@
 	if( document && document.querySelectorAll ) {
 		var i=0,svgs = document.querySelectorAll('.svgdefs');
 		for (;i<svgs.length; i++) {
-			svgs[i].innerHTML = '{{GRUNT_SVGDEFS}}';
+			svgs[i].innerHTML = '<%= svgDefs %>';
 		};
 	}
 	/*@end*/

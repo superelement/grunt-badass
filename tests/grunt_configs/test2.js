@@ -11,7 +11,7 @@ exports.test = {
 		,spriteUrl: "/absolute/url/to/sprite.png"
 		,spriteOutput: "<%= rootDir %>dist/test2/sprite.png"
 
-		,svgDir: "<%= rootDir %>tmp/test2/myicons-svgs/"
+		// ,svgDir: "<%= rootDir %>tmp/test2/myicons-svgs/"
 		,stylesOutput: "<%= rootDir %>dist/test2/icons.css"
 		,cwd: "<%= rootDir %>"
 		,items: [

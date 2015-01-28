@@ -1,5 +1,5 @@
 /**
- * This Gruntfile is meant for unit testing and should be executed within a
+ * This Gruntfile is meant for e2e testing and should be executed within a
  * Jasmine `*_spec.js` file, by using the `shell.exec` library to initialize Grunt.
  * There is no default task because each target gets specified in the shell command.
  */
