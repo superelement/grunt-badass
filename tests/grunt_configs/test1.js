@@ -1,5 +1,5 @@
 exports.test = {
-	src: '<%= rootDir %>tests/resources/'
+	src: '<%= rootDir %>tests/resources/svgs/'
 	,dest: "<%= rootDir %>dist/test1/compass-sprite-prep/"
 	,options: {
 		cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short

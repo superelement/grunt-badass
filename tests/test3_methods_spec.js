@@ -546,6 +546,70 @@ describe("test 3 - badass testable methods", function() {
 			});
 		});
 	});
+
+	describe("checkCSSCompatibleFileNames()", function() {
+
+		var tmpDir = TEST_DIR + "css-compat/";
+
+		it("should throw an error if the svg file doesn't end in '.svg'.", function() {
+			createDummySvg( "a/whatami" );
+			expectError( "a/" );
+		});
+
+		it("should throw an error if the svg file contains uppercase characters.", function() {
+			createDummySvg( "b/CapitalismRocks.svg" );
+			expectError( "b/" );
+		});
+
+		it("should throw an error if the svg file contains a number as first character.", function() {
+			createDummySvg( "c/99problems.svg" );
+			expectError( "c/" );
+		});
+
+		it("should throw an error if the svg file contains a dash as first character.", function() {
+			createDummySvg( "d/-xxx.svg" );
+			expectError( "d/" );
+		});
+
+		it("should throw an error if the svg file contains an underscore as first character.", function() {
+			createDummySvg( "e/_xxx.svg" );
+			expectError( "e/" );
+		});
+
+		it("should throw an error if the svg file contains a space.", function() {
+			createDummySvg( "f/xx x.svg" );
+			expectError( "f/" );
+		});
+
+		it("should throw an error if the svg file contains a character not in the 'a-z\-\_0-9' regex.", function() {
+			createDummySvg( "g/xx?x.svg" );
+			expectError( "g/" );
+		});
+
+		it("should not throw any errors if the svg file contains a characters within the 'a-z\-\_0-9' regex", function() {
+			createDummySvg( "h/xx-9x_ppp0.svg" );
+			expectError( "h/", true );
+		});
+
+		function expectError( subdir, flip ) {
+			// use flip=true to expect NO errors
+
+			var itErrored = false;
+
+			try {
+				testableMethods.checkCSSCompatibleFileNames( tmpDir + subdir );
+			} catch(e) {
+				itErrored = true;
+				// console.log( e );
+			}
+
+			expect( itErrored ).toBe( flip ? false : true );
+		}
+
+		function createDummySvg( svgFileName ) {
+			fse.outputFileSync( tmpDir + svgFileName, "<svg></svg>" );
+		}
+	});
 });
 
 

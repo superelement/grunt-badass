@@ -39,7 +39,7 @@ module.exports = function(grunt) {
 
 		,badass: {
 			dist: {
-				src: 'tests/resources/'
+				src: 'tests/resources/svgs/'
 				,dest: "dist/"
 				,options: {
 					cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
@@ -77,7 +77,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
-	grunt.registerTask('test', ['jasmine_node:badass', "clean:tests"]);
+	// use grunt option --dirty=true to skip the clean
+	grunt.registerTask('test', ['jasmine_node:badass'].concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
 	// grunt.registerTask('test', ['copy', 'clean', 'jasmine_node']);
 
 	grunt.registerTask('default', ['jshint', 'test', 'badass']);

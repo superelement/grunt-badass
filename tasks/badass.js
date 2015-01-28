@@ -53,7 +53,7 @@ module.exports = function( grunt ) {
         fse.ensureDirSync( fileObj.dest );
         fse.copySync( config.cwd + "tasks/resources/svgloader.js", fileObj.dest + "svgloader.js" );
 
-		var opts = {
+        var opts = {
             pngfolder: config.cssPrefix
             ,defaultWidth: config.defaultWidth
             ,defaultHeight: config.defaultHeight
@@ -61,9 +61,9 @@ module.exports = function( grunt ) {
 
         var cnt = 0;
         _.forEach( fileObj.src, function( src ) {
-	        cnt++;
+            cnt++;
 
-
+            checkCSSCompatibleFileNames( src );
             coloursAndSizes( config.defaultCol, src, config.items, config.tmpDir );
             copySafeSrc( config.defaultCol, src, config.svgDir );
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.cwd, config.scssOutput, config.items );
@@ -93,6 +93,33 @@ module.exports = function( grunt ) {
         });
 
 	});
+
+
+    function checkCSSCompatibleFileNames( src ) {
+        fse.readdirSync( src ).forEach(function(filename) {
+
+            if( filename.lastIndexOf(".svg") !== filename.length-4 )
+                throw new Error("SVG file '"+filename+"' name does not end in '.svg'. Please ensure it does.");
+
+            if( filename !== filename.toLowerCase() )
+                throw new Error("SVG file '"+filename+"' name contains upper case characters. They should be converted to lower case as it is not CSS friendly.");
+
+            if( filename[0].match(/[0-9]/) )
+                throw new Error("SVG file '"+filename+"' name contains a number as first character. This should be removed, as it is not CSS friendly.");
+
+            if( filename[0].match(/[\-\_]/) )
+                throw new Error("SVG file '"+filename+"' name contains an underscore or a dash as first character. This should be removed, as it is not CSS friendly.");
+
+            if( filename.indexOf(" ") !== -1 )
+                throw new Error("SVG file '"+filename+"' name contains a space. This is not CSS friendly. This should be removed, as it is not CSS friendly.");
+
+            _.forEach(filename.split(".svg")[0], function(ch, i) {
+                if( !ch.match(/[a-z\-\_0-9]/) ) {
+                    throw new Error("SVG file '"+filename+"' name contains characters that are not CSS friendly. Stopping at character number "+i+" - '"+ch+"'.");
+                }
+            });
+        });
+    }
 
 
     function generateSprite( spriteUrl, spriteOutput, cssPrefix, scssOutput, items, pngDir, done ) {
@@ -400,6 +427,7 @@ module.exports = function( grunt ) {
             ,getFileBaseName: getFileBaseName
             ,copyStandAlonePngs: copyStandAlonePngs
             ,generateSprite: generateSprite
+            ,checkCSSCompatibleFileNames: checkCSSCompatibleFileNames
         }
     }
 }
