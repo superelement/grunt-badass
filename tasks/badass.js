@@ -50,6 +50,9 @@ module.exports = function( grunt ) {
 			return;
 		}
 
+        fse.ensureDirSync( fileObj.dest );
+        fse.copySync( config.cwd + "tasks/resources/svgloader.js", fileObj.dest + "svgloader.js" );
+
 		var opts = {
             pngfolder: config.cssPrefix
             ,defaultWidth: config.defaultWidth

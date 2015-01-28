@@ -1,87 +1,12 @@
 'use strict';
 
 var _ = require("lodash-node")
-	,shell = require("shelljs")
 	,fse = require("fs-extra")
 	,parserlib = require("parserlib") // for linting CSS
 	,cwd = process.cwd()
 	,DEF_COL = "BADA55";
 
-
-describe("test 1 - check generated files and folders", function() {
-
-	var originalTimeout;
-
-	beforeEach(function() {
-		originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-  		jasmine.DEFAULT_TIMEOUT_INTERVAL = 4000;
-	});
-
-
-	afterEach(function() {
-		jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-	});
-	
-	/**
-	 * Lodash template used just for converting path vars
-	 */
-	var rootDirObj = { rootDir: "./" }
-		,config = require("./grunt_configs/test1.js").test
-		,COMPASS_SPRITE_DIR = _.template( config.dest, rootDirObj )
-		,STAND_ALONE_PNG_DIR = _.template( config.options.standAlonePngDir, rootDirObj )
-		,PNG_DIR = COMPASS_SPRITE_DIR+config.options.cssPrefix+"/";
-	
-	gruntTest(1);
-
-
-	it("should check task resources exist", function() {
-		expect( fse.existsSync("./tasks/resources/icons.css") ).toBe( true );
-		expect( fse.existsSync("./tasks/resources/svgloader.js") ).toBe( true );
-	});
-
-
-	it("should have created a css file for icons which should no longer contains any template syntax.", function(done) {		
-
-		expect( fse.existsSync(COMPASS_SPRITE_DIR+"icons.css") ).toBe( true );
-
-		var css = fse.readFileSync(COMPASS_SPRITE_DIR+"icons.css").toString();
-		expect( css.indexOf("<%=") ).toEqual(-1);
-
-		lintCSS( done, css );
-	});
-
-
-	it( "should check that all SVG icons have had corresponding PNGs generated", function() {
-		expect( fse.existsSync(PNG_DIR) ).toBe( true );
-		
-		config.options.items.forEach( function(item, i) {
-			var pngIcon = PNG_DIR+item.class+".png";
-			expect( fse.existsSync(pngIcon) ).toBe( true );
-		});
-	});
-
-
-	it("should check that specified stand alone pngs have been generate", function() {
-		
-		expect( fse.existsSync(STAND_ALONE_PNG_DIR) ).toBe( true );
-
-		config.options.items.forEach(function(item) {
-			if( item.standAlone ) 
-				expect( fse.existsSync( STAND_ALONE_PNG_DIR+item.class+".png" ) ).toBe( true );
-		});
-	});
-
-
-	// TODO: test file names are css compatible
-
-	/*it("should have copied the `svgloader.js` file into dist.", function() {		
-		expect( fse.existsSync("./dist/test1/svgloader.js") ).toBe( true );
-	});*/
-
-});
-
-
-describe("badass testable methods", function() {
+describe("test 2 - badass testable methods", function() {
 
 	var badass = require("../tasks/badass.js")
 		,testableMethods = badass( require("grunt") ).tests
@@ -242,7 +167,7 @@ describe("badass testable methods", function() {
 					,h:41
 					,strokeCol: "#999"
 				}]
-				,scssOutput = cwd + "/dist/test1/tmp/icons.css"
+				,scssOutput = cwd + "/dist/test2/tmp/icons.css"
 				// can only lint if 'includeCompassSpriteStyles' is false, as it will add scss specific styles
 				,includeCompassSpriteStyles = false;
 
@@ -261,7 +186,7 @@ describe("badass testable methods", function() {
 	describe("copySafeSrc()", function() {
 
 		var srcPath = "./tests/resources/svgs/"
-			,destPath = "./dist/test1/safe-svgs/";
+			,destPath = "./dist/test2/safe-svgs/";
 
 		testableMethods.copySafeSrc( DEF_COL, srcPath, destPath );
 
@@ -347,8 +272,8 @@ describe("badass testable methods", function() {
 
 		it("should check that xml header has been added to svg, if missing", function() {
 			
-			var tempSrc = "./dist/test1/tmp-colours-and-sizes-xml/"
-				,svgTempDir = "./dist/test1/tmp-svgs-xml/";
+			var tempSrc = "./dist/test2/tmp-colours-and-sizes-xml/"
+				,svgTempDir = "./dist/test2/tmp-svgs-xml/";
 
 			createTempSrc( "xml", "camera.svg" );
 			replaceBetweenSvg( "xml", "camera.svg", "<?xml", "?>" );
@@ -366,8 +291,8 @@ describe("badass testable methods", function() {
 		});
 
 		it("should check that <symbol> tags have been replaced by <g> tags", function() {
-			var tempSrc = "./dist/test1/tmp-colours-and-sizes-symbol/"
-				,svgTempDir = "./dist/test1/tmp-svgs-symbol/";
+			var tempSrc = "./dist/test2/tmp-colours-and-sizes-symbol/"
+				,svgTempDir = "./dist/test2/tmp-svgs-symbol/";
 
 			// make sure svg has a <symbol> tag
 			createTempSrc( "symbol", "camera.svg" );
@@ -392,8 +317,8 @@ describe("badass testable methods", function() {
 		});
 
 		it("should check that 'xmlns' attribute is present on the <svg> tag", function() {
-			var tempSrc = "./dist/test1/tmp-colours-and-sizes-xmlns/"
-				,svgTempDir = "./dist/test1/tmp-svgs-xmlns/"
+			var tempSrc = "./dist/test2/tmp-colours-and-sizes-xmlns/"
+				,svgTempDir = "./dist/test2/tmp-svgs-xmlns/"
 
 			createTempSrc( "xmlns", "camera.svg" );
 			replaceBetweenSvg( "xmlns", "camera.svg", 'xmlns="', '"' );
@@ -415,7 +340,7 @@ describe("badass testable methods", function() {
 			 * If 'class' is specified, it should use it as the file name
 			 */
 
-			var svgTempDir = "./dist/test1/tmp-svgs-classes1/";
+			var svgTempDir = "./dist/test2/tmp-svgs-classes1/";
 
 			testableMethods.coloursAndSizes( DEF_COL, svgSrcDir, items, svgTempDir );
 
@@ -429,7 +354,7 @@ describe("badass testable methods", function() {
 			 * If 'class' not specified, it should create a base name from file name, width, height, fill and stroke values
 			 */
 
-			var svgTempDir = "./dist/test1/tmp-svgs-classes2/"
+			var svgTempDir = "./dist/test2/tmp-svgs-classes2/"
 				,item = {
 					filename: 'camera'
 					,class: null
@@ -448,7 +373,7 @@ describe("badass testable methods", function() {
 			 * If width and height attributes exist more than once on an svg, it screws up svgToPng
 			 */
 
-			var svgTempDir = "./dist/test1/tmp-svgs-wh/";
+			var svgTempDir = "./dist/test2/tmp-svgs-wh/";
 
 			testableMethods.coloursAndSizes( DEF_COL, svgSrcDir, items, svgTempDir );
 
@@ -464,7 +389,7 @@ describe("badass testable methods", function() {
 		});
 
 		it("should check that fill colour, stroke colour & stroke width get replaced with config values", function() {
-			var svgTempDir = "./dist/test1/tmp-svgs-stroke-col/"
+			var svgTempDir = "./dist/test2/tmp-svgs-stroke-col/"
 				,item = {
 					filename: 'camera'
 					,class: "camera-cold"
@@ -485,7 +410,7 @@ describe("badass testable methods", function() {
 
 
 		it("should check that stroke and fill colours get replaced with 'transparent' and stroke width an 'almostZero' number when omitted from config", function() {
-			var svgTempDir = "./dist/test1/tmp-svgs-stroke-trans/"
+			var svgTempDir = "./dist/test2/tmp-svgs-stroke-trans/"
 				,item = {
 					filename: 'camera'
 					,class: "camera-cold"
@@ -508,7 +433,7 @@ describe("badass testable methods", function() {
 		
 
 		function createTempSrc( testId, svgFileName ) {
-			var tempSrc = "./dist/test1/tmp-colours-and-sizes-"+testId+"/"
+			var tempSrc = "./dist/test2/tmp-colours-and-sizes-"+testId+"/"
 
 			// copy files to a temp folder so we can modify them for test only
 			fse.ensureDirSync( tempSrc );
@@ -516,7 +441,7 @@ describe("badass testable methods", function() {
 		}
 
 		function replaceBetweenSvg( testId, svgFileName, start, end ) {
-			var tempSrc = "./dist/test1/tmp-colours-and-sizes-"+testId+"/"
+			var tempSrc = "./dist/test2/tmp-colours-and-sizes-"+testId+"/"
 
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
@@ -525,7 +450,7 @@ describe("badass testable methods", function() {
 		}
 
 		function replacePartSvg( testId, svgFileName, orig, repl ) {
-			var tempSrc = "./dist/test1/tmp-colours-and-sizes-"+testId+"/"
+			var tempSrc = "./dist/test2/tmp-colours-and-sizes-"+testId+"/"
 
 			// modify the svg, so we can test without ruining original
 			var svgContents = fse.readFileSync( tempSrc + svgFileName ).toString();
@@ -566,7 +491,7 @@ describe("badass testable methods", function() {
 		it("should check that only items/icons with 'standAlone' property set to true get copied from 'pngDir' to 'standAlonePngDir'.", function() {
 			
 			var pngDir = "./tests/resources/pngs/"
-			,standAlonePngDir = "./dist/test1/tmp-copy-stand-alone-pngs/"
+			,standAlonePngDir = "./dist/test2/tmp-copy-stand-alone-pngs/"
 			,items = [
 				{
 					filename: 'camera',
@@ -590,8 +515,8 @@ describe("badass testable methods", function() {
 
 			var spriteUrl = "/some/path/to/sprite.png"
 			,cssPrefix = "bad"
-			,scssOutput = "./dist/test1/tmp-generate-sprite/icons.css"
-			,spriteOutput = "./dist/test1/tmp-generate-sprite/sprite.png"
+			,scssOutput = "./dist/test2/tmp-generate-sprite/icons.css"
+			,spriteOutput = "./dist/test2/tmp-generate-sprite/sprite.png"
 			,pngDir = "./tests/resources/pngs/"
 			,items = [
 				{
@@ -621,20 +546,6 @@ describe("badass testable methods", function() {
 		});
 	});
 });
-
-
-describe("cleanup", function() {
-	it("should clean up the dist folder", function() {
-		fse.removeSync( "./dist/test1" );
-		expect( fse.existsSync("./dist/test1") ).toBe( false );
-	});
-});
-
-function gruntTest( number ) {
-	process.chdir("tests/grunt_configs/");
-	var result = shell.exec("grunt badass:test"+number, {silent:true});
-	process.chdir(cwd);
-}
 
 
 function lintCSS( done, returnedStr ) {

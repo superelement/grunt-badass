@@ -27,9 +27,9 @@ module.exports = function(grunt) {
 		// Unit tests.
 		,jasmine_node: {
 			badass: {
-				src: ["tasks/badass.js"]
+				src: ["tests/**/*spec.js"] // for coverage
 				,options: {
-					coverage: {}
+					coverage: {} // using istanbul defaults
 					,forceExit: true
 					,specFolders: ['tests']
 					,captureExceptions: true
@@ -68,6 +68,10 @@ module.exports = function(grunt) {
 			}
 		}
 
+		,clean: {
+			tests: ["dist/test1", "dist/test2"]
+		}
+
 	});
 
 	// Actually load this plugin's task(s).
@@ -75,9 +79,10 @@ module.exports = function(grunt) {
 
 	// These plugins provide necessary tasks.
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
-	grunt.registerTask('test', ['jasmine_node']);
+	grunt.registerTask('test', ['jasmine_node:badass', "clean:tests"]);
 	// grunt.registerTask('test', ['copy', 'clean', 'jasmine_node']);
 
 	grunt.registerTask('default', ['jshint', 'test', 'badass']);
