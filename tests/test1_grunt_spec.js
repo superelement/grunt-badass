@@ -2,7 +2,6 @@
 
 var _ = require("lodash-node")
 	,parserlib = require("parserlib") // for linting CSS
-	,shell = require("shelljs")
 	,fse = require("fs-extra")
 	,cwd = process.cwd()
 
@@ -29,9 +28,6 @@ describe("test 1 - check generated files and folders", function() {
 		,COMPASS_SPRITE_DIR = _.template( config.dest, rootDirObj )
 		,STAND_ALONE_PNG_DIR = _.template( config.options.standAlonePngDir, rootDirObj )
 		,PNG_DIR = COMPASS_SPRITE_DIR+config.options.cssPrefix+"/";
-	
-	gruntTest(1);
-
 
 	it("should check task resources exist", function() {
 		expect( fse.existsSync("./tasks/resources/icons-compass-sprite.scss") ).toBe( true );
@@ -77,11 +73,4 @@ describe("test 1 - check generated files and folders", function() {
 	});
 
 });
-
-
-function gruntTest( number ) {
-	process.chdir("tests/grunt_configs/");
-	var result = shell.exec("grunt badass:test"+number, {silent:true});
-	process.chdir(cwd);
-}
 

@@ -189,26 +189,34 @@ describe("test 3 - badass testable methods", function() {
 		var srcPath = "./tests/resources/svgs/"
 			,destPath = TEST_DIR + "safe-svgs/";
 
-		testableMethods.copySafeSrc( DEF_COL, srcPath, destPath );
 
-		it("should verify that all '.svg' files have been copied to 'dest' directory", function() {
+		it("should verify that all '.svg' files have been copied to 'dest' directory", function(done) {
 
-			var srcFileNames = fse.readdirSync( srcPath )
-				,destFileNames = fse.readdirSync( destPath );
+			testableMethods.copySafeSrc( DEF_COL, srcPath, destPath, testableMethods.svgoPlugins, function() {
 
-			expect( _.isEqual(srcFileNames, destFileNames) ).toBe( true );
+				var srcFileNames = fse.readdirSync( srcPath )
+					,destFileNamesMin = fse.readdirSync( destPath+"min/" )
+					,destFileNamesUnmin = fse.readdirSync( destPath+"unmin/" );
+
+				expect( _.isEqual(srcFileNames, destFileNamesMin) ).toBe( true );
+				expect( _.isEqual(srcFileNames, destFileNamesUnmin) ).toBe( true );
+				done();
+			});
 		});
 
-		it("should check that svgs have had references to BADASS removed", function() {
+		it("should check that svgs have had references to BADASS removed", function(done) {
 
-			var srcFileNames = fse.readdirSync( srcPath );
+			testableMethods.copySafeSrc( DEF_COL, srcPath, destPath, testableMethods.svgoPlugins, function() {
+				var srcFileNames = fse.readdirSync( srcPath );
 
-			srcFileNames.forEach(function(fileName) {
+				srcFileNames.forEach(function(fileName) {
 
-				var destContents = fse.readFileSync( destPath + fileName ).toString();
+					var destContents = fse.readFileSync( destPath+"unmin/" + fileName ).toString();
 
-				expect( destContents.indexOf("#"+DEF_COL) ).toEqual( -1 );
-				expect( destContents.indexOf("#"+DEF_COL.toLowerCase()) ).toEqual( -1 );
+					expect( destContents.indexOf("#"+DEF_COL) ).toEqual( -1 );
+					expect( destContents.indexOf("#"+DEF_COL.toLowerCase()) ).toEqual( -1 );
+				});
+				done();
 			});
 
 		});

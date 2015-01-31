@@ -16,6 +16,26 @@ module.exports = function( grunt ) {
         ,_ = require('lodash-node')
         ,SVGO = require('svgo');
 
+    var svgoPlugins = [
+        /**
+         * Removed all 'convert' options as caused VERY weird error when deployed to UAT (production) apache server.
+         * Certain combinations of numbers would display as ********** asterisk characters.
+         * Didn't matter what the file type was either - tried .txt, .js, .css and .jsp.
+         */
+         { convertPathData: false }
+        ,{ convertStyleToAttrs: false }
+        ,{ convertTransform: false }
+        ,{ convertShapeToPath: false }
+        ,{
+            // want to keep rounded edges on strokes
+            removeUselessStrokeAndFill: false
+        }
+        ,{
+            // want to keep stroke and fille "none" values
+            removeUnknownsAndDefaults: false
+        }
+    ]
+
     grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
 
@@ -33,25 +53,7 @@ module.exports = function( grunt ) {
             ,items: []
             ,tmpDir: "./tmp/"
             ,cwd: null
-            ,svgoPlugins: [
-                /**
-                 * Removed all 'convert' options as caused VERY weird error when deployed to UAT (production) apache server.
-                 * Certain combinations of numbers would display as ********** asterisk characters.
-                 * Didn't matter what the file type was either - tried .txt, .js, .css and .jsp.
-                 */
-                 { convertPathData: false }
-                ,{ convertStyleToAttrs: false }
-                ,{ convertTransform: false }
-                ,{ convertShapeToPath: false }
-                ,{
-                    // want to keep rounded edges on strokes
-                    removeUselessStrokeAndFill: false
-                }
-                ,{
-                    // want to keep stroke and fille "none" values
-                    removeUnknownsAndDefaults: false
-                }
-            ]
+            ,svgoPlugins: svgoPlugins
         });
 
         // sets the current working directory ("cwd") if not defined in config
@@ -535,6 +537,7 @@ module.exports = function( grunt ) {
             ,copyStandAlonePngs: copyStandAlonePngs
             ,generateSprite: generateSprite
             ,checkCSSCompatibleFileNames: checkCSSCompatibleFileNames
+            ,svgoPlugins: svgoPlugins // just a var for reference in tests
         }
     }
 }
