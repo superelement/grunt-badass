@@ -33,6 +33,7 @@ module.exports = function(grunt) {
 					,specFolders: ['tests']
 					,captureExceptions: true
 					,showColors: true
+					// ,forceExit: true
 				}
 			}
 		}
@@ -77,7 +78,9 @@ module.exports = function(grunt) {
 	// These plugins provide necessary tasks.
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-jasmine-node-coverage');
+	
+	grunt.loadTasks('subtrees/grunt-jasmine-node-coverage/tasks');
+	// grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
 	// use grunt option --dirty=true to skip the clean
 	grunt.registerTask('test', ['badass:test1', 'badass:test2', 'jasmine_node:badass'].concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
