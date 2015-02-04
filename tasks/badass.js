@@ -4,7 +4,6 @@ module.exports = function( grunt ) {
     /**
      * TODO:
      * - add more checks for options and items and give errors or warnings
-     * - incorporate svgmin, svgstore and insert-svgdefs
      * - maybe change dependant npm modules from `devDependencies` to `dependencies`, so they download when doing `npm install`. Need to check this.
      */
 
@@ -486,7 +485,7 @@ module.exports = function( grunt ) {
         return result;
     }
 
-    function runSvgLoaderGruntTasks( cssPrefix, svgDir, dest, tmpDir ) {
+    function runSvgLoaderGruntTasks( cssPrefix, svgDir, dest, tmpDir, cb ) {
 
         /**
          * This task only has a grunt implementation, so need to run it as a grunt task
@@ -517,6 +516,8 @@ module.exports = function( grunt ) {
             contents = _.template( contents, { "svgDefs":svgDefs } );
 
             fse.outputFileSync( dest + "svgloader.js", contents )
+
+            if(cb) cb();
         });
 
         grunt.task.run(["svgstore:badass", "badass-post-svgstore"]);
@@ -537,6 +538,7 @@ module.exports = function( grunt ) {
             ,copyStandAlonePngs: copyStandAlonePngs
             ,generateSprite: generateSprite
             ,checkCSSCompatibleFileNames: checkCSSCompatibleFileNames
+            ,runSvgLoaderGruntTasks:runSvgLoaderGruntTasks
             ,svgoPlugins: svgoPlugins // just a var for reference in tests
         }
     }

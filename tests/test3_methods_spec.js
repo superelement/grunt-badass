@@ -622,6 +622,25 @@ describe("test 3 - badass testable methods", function() {
 			fse.outputFileSync( tmpDir + svgFileName, "<svg></svg>" );
 		}
 	});
+	
+
+	describe("runSvgLoaderGruntTasks()", function() {
+		var srcPath = "./tests/resources/svgs/"
+			,outputDir = TEST_DIR + "svgstore/output/"
+			,tmpDir = TEST_DIR + "svgstore/tmp/"
+			,OUTPUT_NAME = 'svgdefs.min.svg'
+			,cssPrefix = "bad"
+
+		it("should check that svgstore creates a single svg definitions file called `"+OUTPUT_NAME+"`", function(done) {
+
+			testableMethods.runSvgLoaderGruntTasks( cssPrefix, srcPath, outputDir, tmpDir, function() {
+
+				expect( fse.existsSync( tmpDir + OUTPUT_NAME ) ).toBe( true );
+				done();
+			});
+		});
+	});
+
 });
 
 
