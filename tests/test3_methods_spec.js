@@ -590,7 +590,7 @@ describe("test 3 - badass testable methods", function() {
 		});
 
 		it("should throw an error if the svg file contains a character not in the 'a-z\-\_0-9' regex.", function() {
-			createDummySvg( "g/xx?x.svg" );
+			createDummySvg( "g/xx+x.svg" );
 			expectError( "g/" );
 		});
 
@@ -615,6 +615,10 @@ describe("test 3 - badass testable methods", function() {
 		}
 
 		function createDummySvg( svgFileName ) {
+			
+			if( svgFileName.match(/[\\?\\>\\<]/) )
+				throw new Error("WARNING: Windows illegal characters detected in filename ".red+svgFileName.red);
+
 			fse.outputFileSync( tmpDir + svgFileName, "<svg></svg>" );
 		}
 	});
