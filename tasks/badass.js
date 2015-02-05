@@ -4,7 +4,6 @@ module.exports = function( grunt ) {
     /**
      * TODO:
      * - add more checks for options and items and give errors or warnings
-     * - maybe change dependant npm modules from `devDependencies` to `dependencies`, so they download when doing `npm install`. Need to check this.
      */
 
 
@@ -53,6 +52,7 @@ module.exports = function( grunt ) {
             ,tmpDir: "./tmp/"
             ,cwd: null
             ,svgoPlugins: svgoPlugins
+            ,clearTmpDir: true
         });
 
         // sets the current working directory ("cwd") if not defined in config
@@ -64,7 +64,7 @@ module.exports = function( grunt ) {
         config.tmpDir = config.cwd + config.tmpDir;
 
         // empty the temp folder if exists
-        if( grunt.file.exists(config.tmpDir) )
+        if( config.clearTmpDir && grunt.file.exists(config.tmpDir) )
             grunt.file.delete( config.tmpDir, { force: true });
         
 
@@ -92,8 +92,7 @@ module.exports = function( grunt ) {
         ,fullyDone = function() {
             doneCount++;
             if(doneCount>=2) {
-                console.log( "log" );
-                runSvgLoaderGruntTasks( config.cssPrefix, svgDir + "min/", fileObj.dest, config.tmpDir );
+                runSvgLoaderGruntTasks( config.cssPrefix, svgDir + "min/", fileObj.dest, config.tmpDir, true, config.clearTmpDir);
                 done();
             }
         }
@@ -381,7 +380,7 @@ module.exports = function( grunt ) {
                 count++;
                 console.log( count, totalCount)
                 if(count>=totalCount) {
-                    console.log( "done")
+                    // console.log( "done")
                     done();
                 }
             });
@@ -485,42 +484,57 @@ module.exports = function( grunt ) {
         return result;
     }
 
-    function runSvgLoaderGruntTasks( cssPrefix, svgDir, dest, tmpDir, cb ) {
+    function runSvgLoaderGruntTasks( cssPrefix, svgDir, dest, tmpDir, runQueuedTasks, clearTmpDir ) {
 
         /**
          * This task only has a grunt implementation, so need to run it as a grunt task
          */
+
+        // needs uid incase multiple cases in single grunt build
+        var uid = Math.random().toString().replace(".","");
 
         grunt.loadNpmTasks("grunt-svgstore");
 
         var files = {};
         files[ tmpDir+"svgdefs.min.svg" ] = svgDir+"*.svg";
 
-        grunt.config.data.svgstore = {
-            badass: {
-                options: {
-                    prefix : cssPrefix+'-'
-                }
-                ,files: files
+        grunt.config.data.svgstore = grunt.config.data.svgstore || {};
+
+        grunt.config.data.svgstore["badass"+uid] = {
+            options: {
+                prefix : cssPrefix+'-'
             }
+            ,files: files
         }
-
-        grunt.registerTask("badass-post-svgstore", "Part of 'grunt-badass' plugin. Runs after 'svgstore:badass'.", function() {
-
+        
+        grunt.registerTask( "badass-post-svgstore"+uid, "Part of 'grunt-badass' plugin. Runs after 'svgstore:badass"+uid+"'.", function() {
             var contents = fse.readFileSync("tasks/resources/svgloader.js")
                 ,svgDefs = fse.readFileSync(tmpDir+"svgdefs.min.svg");
 
-            fse.removeSync( svgDir+"svgdefs.min.svg" );
-            fse.removeSync( tmpDir );
+            if( clearTmpDir ) {
+                fse.removeSync( svgDir+"svgdefs.min.svg" );
+                fse.removeSync( tmpDir );
+            }
             
             contents = _.template( contents, { "svgDefs":svgDefs } );
 
             fse.outputFileSync( dest + "svgloader.js", contents )
-
-            if(cb) cb();
         });
 
-        grunt.task.run(["svgstore:badass", "badass-post-svgstore"]);
+        // If unit testing this function 'runQueuedTasks' will be false and no need to run the tasks
+        if(runQueuedTasks) {
+            
+            // console.log( grunt.task._queue );
+            // This will enqueue after the badass plugin
+            grunt.task.run(["svgstore:badass"+uid, "badass-post-svgstore"+uid ]);
+        } else {
+
+            // If 'runQueuedTasks:false', assume it's a unit test and return a config object with details needed
+            return {
+                postSvgStoreName: "badass-post-svgstore"+uid
+                ,svgStoreName: "badass"+uid
+            }
+        }
 
     }
 

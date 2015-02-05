@@ -625,19 +625,29 @@ describe("test 3 - badass testable methods", function() {
 	
 
 	describe("runSvgLoaderGruntTasks()", function() {
-		var srcPath = "./tests/resources/svgs/"
-			,outputDir = TEST_DIR + "svgstore/output/"
+
+		//expect must be run after 'test3'
+
+		var outputDir = TEST_DIR + "svgstore/output/"
 			,tmpDir = TEST_DIR + "svgstore/tmp/"
-			,OUTPUT_NAME = 'svgdefs.min.svg'
-			,cssPrefix = "bad"
 
-		it("should check that svgstore creates a single svg definitions file called `"+OUTPUT_NAME+"`", function(done) {
+		var originalTimeout;
 
-			testableMethods.runSvgLoaderGruntTasks( cssPrefix, srcPath, outputDir, tmpDir, function() {
+		beforeEach(function() {
+			originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+	  		jasmine.DEFAULT_TIMEOUT_INTERVAL = 4000;
+		});
 
-				expect( fse.existsSync( tmpDir + OUTPUT_NAME ) ).toBe( true );
-				done();
-			});
+		afterEach(function() {
+			jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+		});
+
+		it("should check that svgstore creates a single svg definitions file called `svgdefs.min.svg`", function() {
+			expect( fse.existsSync( tmpDir + "svgdefs.min.svg" ) ).toBe( true );
+		});
+
+		it("should check that `svgloader.js` is created", function() {
+			expect( fse.existsSync( outputDir + "svgloader.js" ) ).toBe( true );
 		});
 	});
 

@@ -10,8 +10,17 @@
 
 module.exports = function(grunt) {
 
+	/**
+	 * We need to load badass task here just so we can grab the result of one of the functions, which uses Grunt tasks
+	 * internally, so we can test it.
+	 */
+	var _ = require("lodash-node")
+		,badass = require('./tasks/badass.js')
+		,test3_RunSvgLoaderGruntTasks = badass(grunt).tests.runSvgLoaderGruntTasks( "bad", "tests/resources/svgs/"
+																,"dist/test3/svgstore/output/", "dist/test3/svgstore/tmp/", false, false );
+
 	// Project configuration.
-	grunt.initConfig({
+	var config = {
 
 		jshint: {
 		  all: [
@@ -69,8 +78,10 @@ module.exports = function(grunt) {
 		,clean: {
 			tests: ["dist/test1", "dist/test2",  "dist/test3"]
 		}
+	};
 
-	});
+	// Must combine the configs from after calling 'runSvgLoaderGruntTasks' with the ones decared in this file
+	grunt.initConfig( _.extend(config, grunt.config.data) );
 
 	// Actually load this plugin's task(s).
 	grunt.loadTasks('tasks');
@@ -78,12 +89,15 @@ module.exports = function(grunt) {
 	// These plugins provide necessary tasks.
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-clean');
-	
 	grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
 	// use grunt option --dirty=true to skip the clean
-	grunt.registerTask('test', ['badass:test1', 'badass:test2', 'jasmine_node:badass'].concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
-	// grunt.registerTask('test', ['copy', 'clean', 'jasmine_node']);
+	grunt.registerTask('test', ['badass:test1', 'badass:test2', 'test3', 'jasmine_node:badass'] 
+		.concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
+
+	// Run test 3
+	grunt.registerTask('test3', [ "svgstore:"+test3_RunSvgLoaderGruntTasks.svgStoreName
+									, test3_RunSvgLoaderGruntTasks.postSvgStoreName ]);
 
 	grunt.registerTask('default', ['jshint', 'test', 'badass']);
 };

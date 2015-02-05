@@ -22,5 +22,7 @@ exports.test = {
 			,{ filename: "code", class: "code-md-bright", w: 60, h:45, fillCol: "yellow" }
 			,{ filename: "code", class: "code-lg-bright", w: 80, h:60, fillCol: "yellow" }
 		]
+
+		// ,clearTmpDir: false
 	}
 }
