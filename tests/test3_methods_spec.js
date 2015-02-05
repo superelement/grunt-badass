@@ -3,7 +3,6 @@
 var _ = require("lodash-node")
 	,fse = require("fs-extra")
 	,parserlib = require("parserlib") // for linting CSS
-	,cwd = process.cwd()
 	,DEF_COL = "BADA55"
 	,TEST_DIR = "./dist/test3/";
 
@@ -172,7 +171,7 @@ describe("test 3 - badass testable methods", function() {
 				// can only lint if 'includeCompassSpriteStyles' is false, as it will add scss specific styles
 				,includeCompassSpriteStyles = false;
 
-			testableMethods.saveScss( includeCompassSpriteStyles, cssPrefix, cwd + "/", stylesOutput, items );
+			testableMethods.saveScss( includeCompassSpriteStyles, cssPrefix, stylesOutput, items );
 
 			// ensure file exists before reading it
 			expect( fse.existsSync( stylesOutput ) ).toBe( true );

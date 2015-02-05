@@ -13,7 +13,6 @@ exports.test = {
 
 		// ,svgDir: "<%= rootDir %>tmp/test1/myicons-svgs/"
 		,stylesOutput: "<%= rootDir %>dist/test1/compass-sprite-prep/icons.scss"
-		,cwd: "<%= rootDir %>"
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
 			,{ filename: "camera", class: "camera-cold", w: 50, h:44, fillCol: "blue", standAlone: true }

@@ -1,5 +1,5 @@
 module.exports = function( grunt ) {
-	"use strict";
+    "use strict";
 
     /**
      * TODO:
@@ -50,18 +50,10 @@ module.exports = function( grunt ) {
             ,defaultCol: "BADA55"
             ,items: []
             ,tmpDir: "./tmp/"
-            ,cwd: null
             ,svgoPlugins: svgoPlugins
             ,clearTmpDir: true
+            ,svgFileExceptions:[]
         });
-
-        // sets the current working directory ("cwd") if not defined in config
-        if(!config.cwd) config.cwd = process.cwd();
-
-        // ensures a trailing forward slash exists if not set in cwd
-        if(config.cwd[ config.cwd.length-1 ] != "/" ) config.cwd += "/";
-
-        config.tmpDir = config.cwd + config.tmpDir;
 
         // empty the temp folder if exists
         if( config.clearTmpDir && grunt.file.exists(config.tmpDir) )
@@ -101,12 +93,11 @@ module.exports = function( grunt ) {
         _.forEach( fileObj.src, function( src ) {
             cnt++;
 
-            checkCSSCompatibleFileNames( src );
+            checkCSSCompatibleFileNames( src, config.svgFileExceptions );
             coloursAndSizes( config.defaultCol, src, config.items, svgDir + "unmin-coloured/" );
             copySafeSrc( config.defaultCol, src, svgDir, config.svgoPlugins, fullyDone );
-            saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.cwd, config.stylesOutput, config.items );
-
-
+            saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.stylesOutput, config.items );
+            copyHTML5Shiv( fileObj.dest );
 
             svgToPng.convert( svgDir + "unmin-coloured/", fileObj.dest, opts )
             .then( function( result , err ){
@@ -132,32 +123,37 @@ module.exports = function( grunt ) {
             });
         });
 
-	});
+    });
 
 
-    function checkCSSCompatibleFileNames( src ) {
+    function checkCSSCompatibleFileNames( src, svgFileExceptions ) {
+
+        if(!svgFileExceptions) svgFileExceptions = [];
+
         fse.readdirSync( src ).forEach(function(filename) {
+            if( svgFileExceptions.indexOf(filename) === -1 ) {
 
-            if( filename.lastIndexOf(".svg") !== filename.length-4 )
-                throw new Error("SVG file '"+filename+"' name does not end in '.svg'. Please ensure it does.");
+                if( filename.lastIndexOf(".svg") !== filename.length-4 )
+                    throw new Error("SVG file '"+filename+"' name does not end in '.svg'. Please ensure it does.");
 
-            if( filename !== filename.toLowerCase() )
-                throw new Error("SVG file '"+filename+"' name contains upper case characters. They should be converted to lower case as it is not CSS friendly.");
+                if( filename !== filename.toLowerCase() )
+                    throw new Error("SVG file '"+filename+"' name contains upper case characters. They should be converted to lower case as it is not CSS friendly.");
 
-            if( filename[0].match(/[0-9]/) )
-                throw new Error("SVG file '"+filename+"' name contains a number as first character. This should be removed, as it is not CSS friendly.");
+                if( filename[0].match(/[0-9]/) )
+                    throw new Error("SVG file '"+filename+"' name contains a number as first character. This should be removed, as it is not CSS friendly.");
 
-            if( filename[0].match(/[\-\_]/) )
-                throw new Error("SVG file '"+filename+"' name contains an underscore or a dash as first character. This should be removed, as it is not CSS friendly.");
+                if( filename[0].match(/[\-\_]/) )
+                    throw new Error("SVG file '"+filename+"' name contains an underscore or a dash as first character. This should be removed, as it is not CSS friendly.");
 
-            if( filename.indexOf(" ") !== -1 )
-                throw new Error("SVG file '"+filename+"' name contains a space. This is not CSS friendly. This should be removed, as it is not CSS friendly.");
+                if( filename.indexOf(" ") !== -1 )
+                    throw new Error("SVG file '"+filename+"' name contains a space. This is not CSS friendly. This should be removed, as it is not CSS friendly.");
 
-            _.forEach(filename.split(".svg")[0], function(ch, i) {
-                if( !ch.match(/[a-z\-\_0-9]/) ) {
-                    throw new Error("SVG file '"+filename+"' name contains characters that are not CSS friendly. Stopping at character number "+i+" - '"+ch+"'.");
-                }
-            });
+                _.forEach(filename.split(".svg")[0], function(ch, i) {
+                    if( !ch.match(/[a-z\-\_0-9]/) ) {
+                        throw new Error("SVG file '"+filename+"' name contains characters that are not CSS friendly. Stopping at character number "+i+" - '"+ch+"'.");
+                    }
+                });
+            }
         });
     }
 
@@ -259,7 +255,7 @@ module.exports = function( grunt ) {
     }
 
     // to be processed by svgToPng
-	function coloursAndSizes( defaultCol, src, items, svgDir ) {
+    function coloursAndSizes( defaultCol, src, items, svgDir ) {
 
         grunt.file.recurse( src, function(abspath, rootdir, subdir, filename) {
 
@@ -304,7 +300,7 @@ module.exports = function( grunt ) {
                 }
             }
         });
-	}
+    }
 
 
     function removeAttr( tagName, attrName, str ) {
@@ -378,7 +374,7 @@ module.exports = function( grunt ) {
                 grunt.file.write( svgDir + "min/" + obj.filename, result.data );
 
                 count++;
-                console.log( count, totalCount)
+                // console.log( count, totalCount)
                 if(count>=totalCount) {
                     // console.log( "done")
                     done();
@@ -387,14 +383,14 @@ module.exports = function( grunt ) {
         });
     }
 
-    function saveScss( includeCompassSpriteStyles, cssPrefix, cwd, stylesOutput, items ) {
+    function saveScss( includeCompassSpriteStyles, cssPrefix, stylesOutput, items ) {
 
         var scss = "";
 
         if( includeCompassSpriteStyles )
-            scss = grunt.file.read( cwd + "tasks/resources/icons-compass-sprite.scss" )+"\n\n";
+            scss = grunt.file.read( getPluginDir() + "tasks/resources/icons-compass-sprite.scss" )+"\n\n";
 
-        scss += grunt.file.read( cwd + "tasks/resources/icons.css" );
+        scss += grunt.file.read( getPluginDir() + "tasks/resources/icons.css" );
 
         scss = _.template( scss, {cssPrefix: cssPrefix} ) + "\n\n";
 
@@ -508,7 +504,8 @@ module.exports = function( grunt ) {
         }
         
         grunt.registerTask( "badass-post-svgstore"+uid, "Part of 'grunt-badass' plugin. Runs after 'svgstore:badass"+uid+"'.", function() {
-            var contents = fse.readFileSync("tasks/resources/svgloader.js")
+
+            var contents = fse.readFileSync(getPluginDir()+"tasks/resources/svgloader.js")
                 ,svgDefs = fse.readFileSync(tmpDir+"svgdefs.min.svg");
 
             if( clearTmpDir ) {
@@ -536,6 +533,18 @@ module.exports = function( grunt ) {
             }
         }
 
+    }
+
+    function getPluginDir() {
+        if( fse.existsSync("node_modules/grunt-badass/") ) 
+            return "node_modules/grunt-badass/"
+
+        return "";
+    }
+
+    function copyHTML5Shiv( dest ) {
+        fse.copySync( getPluginDir() + "tasks/resources/html5shiv-plus-svg.js", dest + "html5shiv-plus-svg.js" );
+        fse.copySync( getPluginDir() + "tasks/resources/html5shiv-printshiv-plus-svg.js", dest + "html5shiv-printshiv-plus-svg.js" );
     }
 
     // Returns a 'tests' object for unit testing purposes only
