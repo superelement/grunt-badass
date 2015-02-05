@@ -44,6 +44,9 @@ grunt.loadNpmTasks('grunt-badass');
 #### cssPrefix {string}
 > A class prefix for your sprite's icons. Keep it short, as it will appear on all badass svg classes.
 
+#### svgPrefix {string}
+> An id prefix for your svg elements. Keep it short, as it will appear on all badass svg ids. Will default to same as `cssPrefix`.
+
 #### standAlonePngDir {string}
 > Local path to the folder that will contain any icons marked as 'stand alone' (in each icon config you can set this with `standAlone:true`).
 
@@ -53,17 +56,20 @@ grunt.loadNpmTasks('grunt-badass');
 #### spriteOutput {string}
 > The local path you want your sprite exported to, including the name of the sprite.
 
-#### svgDir {string}
-> Copies original svgs to be processed by svgmin, removing references to BADASS for modern browsers
-
 #### includeCompassSpriteStyles {boolean}
 > Default is false. Will add compass sprite snippet to top of scss. Only change this to true if your project uses compass sprites and you want to merge badass icons into the main project sprite.
 
 #### stylesOutput {string}
 > Local path to `.css` or `.scss` file that contains sprite data. If using compass sprites and scss, this should be a `.scss` file and `includeCompassSpriteStyles:true` option should also be set.
 
-#### cwd
-> Will default to the current working directory, but you can change it if you need to
+#### svgoPlugins {array}
+> Options for optimising your SVGs. See SVGO repo for all options - https://github.com/svg/svgo/tree/master/plugins.
+
+#### clearTmpDir {boolean}
+> Clears the specified tmp directory at the end of build, if true. Defaults to true. 
+
+#### svgFileExceptions {array}
+> An array of file names to ignore within the `src`. Doesn't currently accept globbing patterns.
 
 
 ### SVG naming convention
@@ -126,6 +132,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-02-05   v0.1.4   First functional version. Removed cwd option and badass:dist example. Added 'HTML5shiv' (modified for svgs), plus options for `svgFileExceptions`, `svgLoaderOutput` and `svgPrefix`.
  * 2015-02-05   v0.1.3   Added tests for 'runSvgLoaderGruntTasks()' and included extra functionality, including UIDs, to it
  * 2015-01-29   v0.1.2   Removed 'svgDir' option and added svgo, svgstore and svgloader.js into the task. Unit tests still need updating. 
  * 2015-01-28   v0.1.1   Changed to "spritesmith". Added unit tests. Changed config variables a bit after writing tests. Separated scss styles for non-sass version.

@@ -43,7 +43,6 @@ module.exports = function( grunt ) {
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,spriteUrl: null
             ,spriteOutput: null
-            // ,svgDir: "myicons-svgs/"
             ,stylesOutput: "_myicons.css"
             ,svgLoaderOutput: null
             ,includeCompassSpriteStyles: false
@@ -495,7 +494,7 @@ module.exports = function( grunt ) {
         // needs uid incase multiple cases in single grunt build
         var uid = Math.random().toString().replace(".","");
 
-        grunt.loadNpmTasks("grunt-svgstore");
+        grunt.loadTasks(getPluginDir()+"node_modules/grunt-svgstore/tasks");
 
         var files = {};
         files[ tmpDir+"svgdefs.min.svg" ] = svgDir+"*.svg";
