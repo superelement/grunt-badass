@@ -84,6 +84,9 @@ The following markup must be placed in the markup just after the body tag is ope
 <script src="/path/to/svgloader.js"></script>
 ```
 
+### HTML5 Shiv
+A modified version of the HTML5 Shiv - https://github.com/aFarkas/html5shiv - has been included, which adds `<svg>` and `<use>` elements. This should be placed within an IE8 conditional comment. If you already have an HTML5 'shiv' or 'shim' on the page, remove it and use this one instead.
+
 ### Grunt Badass VS Font Awesome
 Font Awesome offers similar advantages to Grunt Badass, when optimising icons:
 - custom vector icons
