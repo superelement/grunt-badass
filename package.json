@@ -1,7 +1,7 @@
 {
   "name": "grunt-badass",
   "description": "Use SVG elements on modern browsers with sprite fallback for IE8, just using CSS classes and some conditional JS polyfilling",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "homepage": "https://github.com/jimdoyle82/grunt-badass",
   "author": {
     "name": "Jim Doyle",
@@ -33,6 +33,7 @@
     ,"lodash-node": "2.4.1"
     ,"spritesmith": "1.0.3"
     ,"fs-extra": "0.15.0"
+    ,"imagemin": "3.1.0"
     ,"grunt-svgstore": "0.2.7"
   },
   "devDependencies": {

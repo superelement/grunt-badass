@@ -12,7 +12,8 @@ module.exports = function( grunt ) {
         ,spritesmith = require('spritesmith')
         ,fse = require("fs-extra")
         ,_ = require('lodash-node')
-        ,SVGO = require('svgo');
+        ,SVGO = require('svgo')
+        ,Imagemin = require('imagemin');
 
     var svgoPlugins = [
         /**
@@ -54,6 +55,9 @@ module.exports = function( grunt ) {
             ,svgoPlugins: svgoPlugins
             ,clearTmpDir: true
             ,svgFileExceptions:[]
+            ,compressSprite: {
+                keepUncompressed: false
+            }
         });
 
         // empty the temp folder if exists
@@ -103,7 +107,6 @@ module.exports = function( grunt ) {
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.stylesOutput, config.items );
 
 
-
             svgToPng.convert( svgDir + "unmin-coloured/", fileObj.dest, opts )
             .then( function( result , err ){
                 if( err ) grunt.fatal( err );
@@ -120,8 +123,54 @@ module.exports = function( grunt ) {
                         fullyDone();
                     }
                     else {
-                        generateSprite( config.spriteUrl, config.spriteOutput, config.cssPrefix, config.stylesOutput, config.items, pngDir, function() {
-                            fse.remove( pngDir, fullyDone );
+
+                        var spriteFilePath = config.spriteOutput;
+                        fse.removeSync( spriteFilePath );
+                        
+                        // if compression is on we save the uncompressed with a flag
+                        if( config.compressSprite ) {
+                            spriteFilePath = config.spriteOutput.split(".png").join("-uncompressed.png");
+                            fse.removeSync( spriteFilePath );
+                        }
+
+
+                        generateSprite( config.spriteUrl, spriteFilePath, config.cssPrefix, config.stylesOutput, config.items, pngDir, function() {
+
+                            var doneFunc = fullyDone;
+
+                            // Use Imagemin to compress PNG sprite
+                            if( config.compressSprite ) {
+
+                                var lastSlashIndex = config.spriteOutput.lastIndexOf("/")
+                                    ,destDir = config.spriteOutput.slice( 0, lastSlashIndex ) + "/compressed/"
+                                    ,spriteFileName = spriteFilePath.slice( lastSlashIndex+1 );
+                                
+                                doneFunc = function() {
+                                    var imagemin = new Imagemin()
+                                        .src(spriteFilePath)
+                                        .dest(destDir)
+                                        .use(Imagemin.pngquant());
+
+                                    imagemin.run(function (err, files) {
+
+                                        if (err) throw err;
+                                        console.log("Imagemin complete", files );
+
+                                        fse.move( destDir + spriteFileName, config.spriteOutput, function() {
+                                            if (err) return console.error(err);
+                                            fse.removeSync(destDir);
+                                            
+                                            if( !config.compressSprite.keepUncompressed )
+                                                fse.removeSync(spriteFilePath);
+
+                                            fullyDone();
+                                        });
+                                    });
+
+                                }
+                            }
+
+                            fse.remove( pngDir, doneFunc);
                         });
                     }
                 }
