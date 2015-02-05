@@ -1,7 +1,7 @@
 {
   "name": "grunt-badass",
   "description": "Use SVG elements on modern browsers with sprite fallback for IE8, just using CSS classes and some conditional JS polyfilling",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "homepage": "https://github.com/jimdoyle82/grunt-badass",
   "author": {
     "name": "Jim Doyle",
