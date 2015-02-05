@@ -39,11 +39,13 @@ module.exports = function( grunt ) {
 
         var config = this.options({
             cssPrefix: "bad"
+            ,svgPrefix: null
             ,standAlonePngDir: "./stand-alone-pngs/"
             ,spriteUrl: null
             ,spriteOutput: null
             // ,svgDir: "myicons-svgs/"
             ,stylesOutput: "_myicons.css"
+            ,svgLoaderOutput: null
             ,includeCompassSpriteStyles: false
             ,defaultWidth: "10px"
             ,defaultHeight: "10px"
@@ -71,6 +73,9 @@ module.exports = function( grunt ) {
             return;
         }
 
+        if( !config.svgLoaderOutput )   config.svgLoaderOutput = fileObj.dest + "svgloader.js";
+        if( !config.svgPrefix )         config.svgPrefix = config.cssPrefix;
+
         var opts = {
             pngfolder: config.cssPrefix
             ,defaultWidth: config.defaultWidth
@@ -84,7 +89,7 @@ module.exports = function( grunt ) {
         ,fullyDone = function() {
             doneCount++;
             if(doneCount>=2) {
-                runSvgLoaderGruntTasks( config.cssPrefix, svgDir + "min/", fileObj.dest, config.tmpDir, true, config.clearTmpDir);
+                runSvgLoaderGruntTasks( config.svgPrefix, svgDir + "min/", config.svgLoaderOutput, config.tmpDir, true, config.clearTmpDir);
                 done();
             }
         }
@@ -97,7 +102,8 @@ module.exports = function( grunt ) {
             coloursAndSizes( config.defaultCol, src, config.items, svgDir + "unmin-coloured/" );
             copySafeSrc( config.defaultCol, src, svgDir, config.svgoPlugins, fullyDone );
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.stylesOutput, config.items );
-            copyHTML5Shiv( fileObj.dest );
+
+
 
             svgToPng.convert( svgDir + "unmin-coloured/", fileObj.dest, opts )
             .then( function( result , err ){
@@ -480,7 +486,7 @@ module.exports = function( grunt ) {
         return result;
     }
 
-    function runSvgLoaderGruntTasks( cssPrefix, svgDir, dest, tmpDir, runQueuedTasks, clearTmpDir ) {
+    function runSvgLoaderGruntTasks( svgPrefix, svgDir, svgLoaderOutput, tmpDir, runQueuedTasks, clearTmpDir ) {
 
         /**
          * This task only has a grunt implementation, so need to run it as a grunt task
@@ -498,7 +504,7 @@ module.exports = function( grunt ) {
 
         grunt.config.data.svgstore["badass"+uid] = {
             options: {
-                prefix : cssPrefix+'-'
+                prefix : svgPrefix
             }
             ,files: files
         }
@@ -515,7 +521,7 @@ module.exports = function( grunt ) {
             
             contents = _.template( contents, { "svgDefs":svgDefs } );
 
-            fse.outputFileSync( dest + "svgloader.js", contents )
+            fse.outputFileSync( svgLoaderOutput, contents )
         });
 
         // If unit testing this function 'runQueuedTasks' will be false and no need to run the tasks
@@ -540,11 +546,6 @@ module.exports = function( grunt ) {
             return "node_modules/grunt-badass/"
 
         return "";
-    }
-
-    function copyHTML5Shiv( dest ) {
-        fse.copySync( getPluginDir() + "tasks/resources/html5shiv-plus-svg.js", dest + "html5shiv-plus-svg.js" );
-        fse.copySync( getPluginDir() + "tasks/resources/html5shiv-printshiv-plus-svg.js", dest + "html5shiv-printshiv-plus-svg.js" );
     }
 
     // Returns a 'tests' object for unit testing purposes only

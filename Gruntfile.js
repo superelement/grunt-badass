@@ -17,7 +17,7 @@ module.exports = function(grunt) {
 	var _ = require("lodash-node")
 		,badass = require('./tasks/badass.js')
 		,test3_RunSvgLoaderGruntTasks = badass(grunt).tests.runSvgLoaderGruntTasks( "bad", "tests/resources/svgs/"
-											,"dist/test3/svgstore/output/", "dist/test3/svgstore/tmp/", false, false );
+										,"dist/test3/svgstore/output/svgloader.js", "dist/test3/svgstore/tmp/", false, false );
 
 	// Project configuration.
 	var config = {
