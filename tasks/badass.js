@@ -13,7 +13,8 @@ module.exports = function( grunt ) {
         ,fse = require("fs-extra")
         ,_ = require('lodash-node')
         ,SVGO = require('svgo')
-        ,Imagemin = require('imagemin');
+        ,Imagemin = require('imagemin')
+        ,pngquant = require('imagemin-pngquant');
 
     var svgoPlugins = [
         /**
@@ -35,8 +36,9 @@ module.exports = function( grunt ) {
         }
     ]
 
-    grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
+    var pngQuantDefs = {quality: '80-90', speed: 1 };
 
+    grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
         var config = this.options({
             cssPrefix: "bad"
@@ -57,6 +59,7 @@ module.exports = function( grunt ) {
             ,svgFileExceptions:[]
             ,compressSprite: {
                 keepUncompressed: false
+                ,pngQuantSettings: null
             }
         });
 
@@ -76,8 +79,9 @@ module.exports = function( grunt ) {
             return;
         }
 
-        if( !config.svgLoaderOutput )   config.svgLoaderOutput = fileObj.dest + "svgloader.js";
-        if( !config.svgPrefix )         config.svgPrefix = config.cssPrefix;
+        if( !config.svgLoaderOutput )                   config.svgLoaderOutput = fileObj.dest + "svgloader.js";
+        if( !config.svgPrefix )                         config.svgPrefix = config.cssPrefix;
+        if( !config.compressSprite.pngQuantSettings )   config.compressSprite.pngQuantSettings = pngQuantDefs;
 
         var opts = {
             pngfolder: config.cssPrefix
@@ -149,7 +153,7 @@ module.exports = function( grunt ) {
                                     var imagemin = new Imagemin()
                                         .src(spriteFilePath)
                                         .dest(destDir)
-                                        .use(Imagemin.pngquant());
+                                        .use(pngquant(config.compressSprite.pngQuantSettings));
 
                                     imagemin.run(function (err, files) {
 

@@ -71,8 +71,14 @@ grunt.loadNpmTasks('grunt-badass');
 #### svgFileExceptions {array}
 > An array of file names to ignore within the `src`. Doesn't currently accept globbing patterns.
 
-#### compressSprite {boolean}
-> Adds lossy QuantPNG compression to the sprite (uses Imagemin), for roughly 70% file size savings. Defaults to true.
+#### compressSprite {object}
+> Adds lossy PNGQuant compression to the sprite (uses Imagemin), for roughly 70% file size savings. Defaults to 
+```js
+{
+    keepUncompressed: false,
+    pngQuantSettings: {quality: '80-90', speed: 1 }
+}
+```
 
 
 ### SVG naming convention
@@ -138,7 +144,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
- * 2015-02-05   v0.1.6	 Add option `compressSprite`, which uses Imagemin/QuantPNG lossy compression.
+ * 2015-02-05   v0.1.6	 Add option `compressSprite`, which uses Imagemin/PNGQuant lossy compression.
  * 2015-02-05   v0.1.5   Updated docs and version bumped.
  * 2015-02-05   v0.1.4   First functional version. Removed cwd option and badass:dist example. Added 'HTML5shiv' (modified for svgs), plus options for `svgFileExceptions`, `svgLoaderOutput` and `svgPrefix`.
  * 2015-02-05   v0.1.3   Added tests for 'runSvgLoaderGruntTasks()' and included extra functionality, including UIDs, to it

@@ -13,6 +13,12 @@ exports.test = {
 
 		// ,svgDir: "<%= rootDir %>tmp/test2/myicons-svgs/"
 		,stylesOutput: "<%= rootDir %>dist/test2/icons.css"
+
+		// By default compressSprite.keepUncompressed = false
+		,compressSprite: {
+            keepUncompressed: true
+        }
+
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
 			,{ filename: "camera", class: "camera-cold", w: 50, h:44, fillCol: "blue", standAlone: true }
