@@ -22,6 +22,12 @@ exports.test = {
 			,{ filename: "code", class: "code-lg-bright", w: 80, h:60, fillCol: "yellow" }
 		]
 
+		,svgoPlugins: [
+			{
+				removeUselessStrokeAndFill: true
+			}
+		]
+
 		// ,clearTmpDir: false
 	}
 }

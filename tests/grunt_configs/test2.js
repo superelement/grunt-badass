@@ -28,6 +28,21 @@ exports.test = {
 			,{ filename: "code", class: "code-lg-bright", w: 80, h:60, fillCol: "yellow" }
 		]
 
+		,svgoPlugins: [
+	        /**
+	         * One Apache server configuration has been known to convert certain combinations of numbers into ********** asterisk characters.
+			 * Suspected cause is some kind of malware protection blocking know number sequences in viruses.
+	         * This is a very rare edge case, but if you come across it, turning off the following 'convert' plugins will fix it.
+	         * However, as this same compression is used in PDFs and Font Awesome icons, you must start with an uncompressed source, or else
+	         * it will keep happening.
+	         */
+	         { convertPathData: false }
+	        ,{ convertStyleToAttrs: false }
+	        ,{ convertTransform: false }
+	        ,{ convertShapeToPath: false }
+	    ]
+
+
 		// ,clearTmpDir: false
 	}
 }

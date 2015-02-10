@@ -72,7 +72,8 @@ module.exports = function(grunt) {
 	grunt.registerTask('test', ['badass:test1', 'badass:test2', 'test3', 'jasmine_node:badass'] 
 		.concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
 
-	// Run test 3
+	grunt.registerTask('test1', ['badass:test1']);
+	grunt.registerTask('test2', ['badass:test2']);
 	grunt.registerTask('test3', [ "svgstore:"+test3_RunSvgLoaderGruntTasks.svgStoreName
 									, test3_RunSvgLoaderGruntTasks.postSvgStoreName ]);
 

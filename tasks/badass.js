@@ -4,6 +4,7 @@ module.exports = function( grunt ) {
     /**
      * TODO:
      * - add more checks for options and items and give errors or warnings
+     * - add tests for getSVGOPlugins
      */
 
 
@@ -16,27 +17,9 @@ module.exports = function( grunt ) {
         ,Imagemin = require('imagemin')
         ,pngquant = require('imagemin-pngquant');
 
-    var svgoPlugins = [
-        /**
-         * Removed all 'convert' options as caused VERY weird error when deployed to UAT (production) apache server.
-         * Certain combinations of numbers would display as ********** asterisk characters.
-         * Didn't matter what the file type was either - tried .txt, .js, .css and .jsp.
-         */
-         { convertPathData: false }
-        ,{ convertStyleToAttrs: false }
-        ,{ convertTransform: false }
-        ,{ convertShapeToPath: false }
-        ,{
-            // want to keep rounded edges on strokes
-            removeUselessStrokeAndFill: false
-        }
-        ,{
-            // want to keep stroke and fille "none" values
-            removeUnknownsAndDefaults: false
-        }
-    ]
 
-    var pngQuantDefs = {quality: '80-90', speed: 1 };
+    var pngQuantDefs = {quality: '80-90', speed: 1 }
+        ,svgoPlugins;
 
     grunt.registerMultiTask("badass", "Icon PNG fallback task", function() {
 
@@ -54,7 +37,7 @@ module.exports = function( grunt ) {
             ,defaultCol: "BADA55"
             ,items: []
             ,tmpDir: "./tmp/"
-            ,svgoPlugins: svgoPlugins
+            ,svgoPlugins: []
             ,clearTmpDir: true
             ,svgFileExceptions:[]
             ,compressSprite: {
@@ -83,6 +66,8 @@ module.exports = function( grunt ) {
         if( !config.svgPrefix )                         config.svgPrefix = config.cssPrefix;
         if( !config.compressSprite.pngQuantSettings )   config.compressSprite.pngQuantSettings = pngQuantDefs;
 
+        svgoPlugins = getSVGOPlugins( config.svgoPlugins );
+
         var opts = {
             pngfolder: config.cssPrefix
             ,defaultWidth: config.defaultWidth
@@ -107,7 +92,7 @@ module.exports = function( grunt ) {
 
             checkCSSCompatibleFileNames( src, config.svgFileExceptions );
             coloursAndSizes( config.defaultCol, src, config.items, svgDir + "unmin-coloured/" );
-            copySafeSrc( config.defaultCol, src, svgDir, config.svgoPlugins, fullyDone );
+            copySafeSrc( config.defaultCol, src, svgDir, svgoPlugins, fullyDone );
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.stylesOutput, config.items );
 
 
@@ -395,9 +380,9 @@ module.exports = function( grunt ) {
 
 
     // copies original svgs to be processed by svgmin, removing references to BADASS for modern browsers
-    function copySafeSrc( defaultCol, src, svgDir, svgoPlugins, done ) {
+    function copySafeSrc( defaultCol, src, svgDir, _svgoPlugins, done ) {
 
-        var svgo = new SVGO({ plugins:svgoPlugins });
+        var svgo = new SVGO({ plugins: _svgoPlugins });
         var totalCount = 0;
         var contentsArr = [];
         // var totalSaved = 0;
@@ -598,6 +583,31 @@ module.exports = function( grunt ) {
             return "node_modules/grunt-badass/"
 
         return "";
+    }
+
+    function getSVGOPlugins( opts ) {
+
+        var defs = [{
+            // want to keep rounded edges on strokes
+            removeUselessStrokeAndFill: false
+        },{
+            // want to keep stroke and fill "none" values
+            removeUnknownsAndDefaults: false
+        }];
+
+        // 'opts' must come first, so that it takes priority when run through _.defaults
+        var combined = opts.concat( defs )
+            ,resultAsObject = _.defaults.apply(this, combined) // returns an object, but needs to be an array of objects
+            ,rtnArr = [];
+
+        // converts single object into array of objects with 1 property in each, to satisfy SVGO plugins structure
+        _.forEach(resultAsObject, function(prop, name) {
+            var obj = {};
+            obj[name] = prop;
+            rtnArr.push( obj );
+        });
+
+        return rtnArr;
     }
 
     // Returns a 'tests' object for unit testing purposes only
