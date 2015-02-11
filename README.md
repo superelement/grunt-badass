@@ -144,6 +144,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-02-05   v0.1.7	 Added defaults for SVGO plugin and tests for it.
  * 2015-02-05   v0.1.6	 Add option `compressSprite`, which uses Imagemin/PNGQuant lossy compression.
  * 2015-02-05   v0.1.5   Updated docs and version bumped.
  * 2015-02-05   v0.1.4   First functional version. Removed cwd option and badass:dist example. Added 'HTML5shiv' (modified for svgs), plus options for `svgFileExceptions`, `svgLoaderOutput` and `svgPrefix`.
