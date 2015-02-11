@@ -650,6 +650,41 @@ describe("test 3 - badass testable methods", function() {
 		});
 	});
 
+	describe("getSVGOPlugins()", function() {
+
+		it("should return an array with default props", function() {
+			
+			var defArr = expectArray();
+
+			// Check that defaults exist. Values should be strictly `false`, rather than falsy.
+			defArr.forEach( function(obj) {
+				expect( obj.removeUselessStrokeAndFill === false || 
+						obj.removeUnknownsAndDefaults === false ).toBe( true );
+			});
+		});
+
+		it("should return an array with modified props", function() {
+			var defArr = expectArray([
+				[{
+					removeUselessStrokeAndFill: true
+				},{
+					removeUnknownsAndDefaults: true
+				}]
+			]);
+
+			defArr.forEach( function(obj) {
+				expect( obj.removeUselessStrokeAndFill === true || 
+						obj.removeUnknownsAndDefaults === true ).toBe( true );
+			});
+		});
+
+		function expectArray( args ) {
+			var rtnArr = testableMethods.getSVGOPlugins.apply(this, args || []);
+			expect( _.isArray(rtnArr) ).toBe(true);
+			return rtnArr;
+		}
+	});
+
 });
 
 

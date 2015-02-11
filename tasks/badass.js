@@ -4,7 +4,7 @@ module.exports = function( grunt ) {
     /**
      * TODO:
      * - add more checks for options and items and give errors or warnings
-     * - add tests for getSVGOPlugins
+     * - add description comments for each function
      */
 
 
@@ -585,7 +585,13 @@ module.exports = function( grunt ) {
         return "";
     }
 
+    /**
+     * Should return default plugins array for SVGO, merged with argument `opts` {array}.
+     * Properties in `opts` should overwrite defaults, if they exist.
+     */
     function getSVGOPlugins( opts ) {
+
+        if(!opts) opts = [];
 
         var defs = [{
             // want to keep rounded edges on strokes
@@ -624,7 +630,8 @@ module.exports = function( grunt ) {
             ,copyStandAlonePngs: copyStandAlonePngs
             ,generateSprite: generateSprite
             ,checkCSSCompatibleFileNames: checkCSSCompatibleFileNames
-            ,runSvgLoaderGruntTasks:runSvgLoaderGruntTasks
+            ,runSvgLoaderGruntTasks: runSvgLoaderGruntTasks
+            ,getSVGOPlugins: getSVGOPlugins
             ,svgoPlugins: svgoPlugins // just a var for reference in tests
         }
     }
