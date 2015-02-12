@@ -66,6 +66,11 @@ describe("test 2 - check generated files and folders", function() {
 		expect( fse.existsSync(DEST+"svgloader.js") ).toBe( true );
 	});
 
+	it("should have generates sprite and placed it into dist.", function() {		
+		var spritePath = _.template( config.options.spriteOutput, rootDirObj );
+		expect( fse.existsSync(spritePath) ).toBe( true );
+	});
+
 });
 
 

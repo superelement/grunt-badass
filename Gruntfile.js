@@ -55,7 +55,12 @@ module.exports = function(grunt) {
 		}
 
 		,clean: {
-			tests: ["dist/test1", "dist/test2",  "dist/test3"]
+			tests: [
+					 "dist/test1"
+					,"dist/test2"
+					,"dist/test3"
+					,"dist/test4"
+					]
 		}
 	};
 
@@ -71,7 +76,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
 	// use grunt option --dirty=true to skip the clean
-	grunt.registerTask('test', ['badass:test1', 'badass:test2', 'test3', 'jasmine_node:badass'] 
+	grunt.registerTask('test', ['test1', 'test2', 'test3', 'test4', 'jasmine_node:badass'] 
 		.concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
 
 	grunt.registerTask('test1', ['badass:test1']);

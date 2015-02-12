@@ -41,6 +41,10 @@ describe("test 4 - check css is valid", function() {
 		expect( fse.existsSync(DEST+"svgloader.js") ).toBe( true );
 	});
 
+	it("should have NOT generated sprite and placed it into dist.", function() {		
+		expect( fse.existsSync(DEST + "sprite.png") ).toBe( false );
+	});
+
 });
 
 

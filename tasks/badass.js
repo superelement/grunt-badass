@@ -3,9 +3,10 @@ module.exports = function( grunt ) {
 
     /**
      * TODO:
-     * - add more checks for options and items and give errors or warnings
+     * - add checks for items and give errors or warnings
      * - add description comments for each function
      * - add stroke width info into readme
+     * - add tests for generateStyles
      */
 
 
@@ -27,7 +28,7 @@ module.exports = function( grunt ) {
         var config = this.options({
             cssPrefix: "bad"
             ,svgPrefix: null
-            ,standAlonePngDir: "./stand-alone-pngs/"
+            ,standAlonePngDir: null
             ,spriteUrl: null
             ,spriteOutput: null
             ,stylesOutput: "_myicons.css"
@@ -51,6 +52,25 @@ module.exports = function( grunt ) {
         // empty the temp folder if exists
         if( config.clearTmpDir && grunt.file.exists(config.tmpDir) )
             grunt.file.delete( config.tmpDir, { force: true });
+
+        // Config checks
+        if( !config.includeFallback && config.spriteOutput )
+            throw new Error("When 'includeFallback' is false 'spriteOutput' should be left as 'null'.");
+
+        if( !config.includeFallback && config.spriteUrl )
+            throw new Error("When 'includeFallback' is false 'spriteUrl' should be left as 'null'.");
+
+        if( !config.includeFallback && config.standAlonePngDir )
+            throw new Error("When 'includeFallback' is false 'standAlonePngDir' should be left as 'null'.");
+
+        if( !_.isArray(config.items) || config.items.length === 0 )
+            throw new Error("Config 'items' is empty. It must contain an array of object.");
+
+        // config.items.forEach(function( item ) {
+
+            // if( typeof item !== "object" )
+                // throw new Error("");
+        // });
         
 
         var done = this.async();
@@ -65,6 +85,7 @@ module.exports = function( grunt ) {
         }
 
         if( !config.svgLoaderOutput )                   config.svgLoaderOutput = fileObj.dest + "svgloader.js";
+        if( !config.standAlonePngDir )                  config.standAlonePngDir = "./stand-alone-pngs/";
         if( !config.svgPrefix )                         config.svgPrefix = config.cssPrefix;
         if( !config.compressSprite.pngQuantSettings )   config.compressSprite.pngQuantSettings = pngQuantDefs;
 
@@ -80,9 +101,9 @@ module.exports = function( grunt ) {
 
         // Waits for all async 'done' callbacks to complete
         var doneCount = 0
-        ,fullyDone = function() {
+        ,fullyDone = function(forceComplete) {
             doneCount++;
-            if(doneCount>=2) {
+            if(forceComplete || doneCount>=2) {
                 runSvgLoaderGruntTasks( config.svgPrefix, svgDir + "min/", config.svgLoaderOutput, config.tmpDir, true, config.clearTmpDir);
                 done();
             }
@@ -99,7 +120,8 @@ module.exports = function( grunt ) {
 
             // if not generating sprite or any PNGs, say, because you don't need ie8 support, finish up here.
             if( !config.includeFallback ) {
-                fullyDone();
+                generateStyles( null, config.cssPrefix, config.stylesOutput, config.items );
+                fullyDone(true);
                 return;
             }
 
@@ -128,7 +150,6 @@ module.exports = function( grunt ) {
                             spriteFilePath = config.spriteOutput.split(".png").join("-uncompressed.png");
                             fse.removeSync( spriteFilePath );
                         }
-
 
                         generateSprite( config.spriteUrl, spriteFilePath, config.cssPrefix, config.stylesOutput, config.items, pngDir, function() {
 
@@ -221,55 +242,7 @@ module.exports = function( grunt ) {
 
             fse.outputFileSync( spriteOutput, result.image, 'binary' );
 
-            var scss = fse.readFileSync( stylesOutput );
-
-            // console.log( result.coordinates );
-            // console.log( result.properties );
-
-            // Declare the sprite used as background image for all classes
-            scss += "."+cssPrefix+
-                        /*
-                        // Actually, we don't need all the other classes, because the DOM elements should 
-                        // contain the main sprite class as well as the icon class. So commenting out this part.
-
-                        (function(coords) {
-                            var rtn = "";
-                            _.forEach(coords, function(imgObj, name) {
-
-                                var lastSlashIndex = name.lastIndexOf("/");
-                                var dotIndex = name.lastIndexOf(".png");
-
-                                rtn += ", ."+cssPrefix+"-"+name.slice( lastSlashIndex+1, dotIndex );
-                            });
-                            return rtn;
-                        })(result.coordinates)+
-                        */
-                    " {\n"+
-                    "  background: url('"+spriteUrl+"') no-repeat;\n"+
-                    "}\n\n";
-
-            // Now declare the individual icon classes with coords on the sprite
-            scss += (function(coords) {
-                    var rtn = "";
-                    _.forEach(coords, function(imgObj, name) {
-
-                        var lastSlashIndex = name.lastIndexOf("/");
-                        var dotIndex = name.lastIndexOf(".png");
-
-                        if( imgObj.x !== 0 ) imgObj.x = imgObj.x * -1;
-                        if( imgObj.y !== 0 ) imgObj.y = imgObj.y * -1;
-
-                        rtn += "."+cssPrefix+"-"+name.slice( lastSlashIndex+1, dotIndex ) + " {\n";
-
-                        rtn += "  background-position:"+imgObj.x+"px "+ imgObj.y+"px;\n";
-                        rtn += "  width:"+imgObj.width+"px;\n";
-                        rtn += "  height:"+imgObj.height+"px;\n";
-                        rtn += "}\n\n";
-                    });
-                    return rtn;
-                })(result.coordinates);
-
-            fse.outputFileSync( stylesOutput, scss );
+            generateStyles( spriteUrl, cssPrefix, stylesOutput, items, result.coordinates );
             
             done();
         });
@@ -387,7 +360,7 @@ module.exports = function( grunt ) {
 
 
     // copies original svgs to be processed by svgo, removing references to BADASS for modern browsers
-    function svgMin( defaultCol, src, svgDir, svgoPlugins, done ) {
+    function svgMin( defaultCol, src, svgDir, _svgoPlugins, done ) {
 
         var svgo = new SVGO({ plugins: _svgoPlugins });
         var totalCount = 0;
@@ -621,6 +594,54 @@ module.exports = function( grunt ) {
         });
 
         return rtnArr;
+    }
+
+    function generateStyles( spriteUrl, cssPrefix, stylesOutput, items, coords ) {
+        var scss = fse.readFileSync( stylesOutput );
+
+        if(spriteUrl) {
+            // Declare the sprite used as background image for all classes
+            scss += "."+cssPrefix+" {\n"+
+                    "background: url('"+spriteUrl+"') no-repeat;\n"+
+                    "}\n\n";
+        }
+
+        // Now declare the individual icon classes with coords on the sprite
+        scss += (function() {
+                var rtn = "";
+                _.forEach(coords || items, function(coordsData, name) {
+
+                    // If not using sprite, we fall back to using items data, which has property `w` rather than `width`
+                    var isFromSprite = (coordsData.width !== undefined)
+                        ,className;
+
+                    if(isFromSprite) {
+                        var lastSlashIndex = name.lastIndexOf("/")
+                            ,dotIndex = name.lastIndexOf(".png");
+
+                        className = name.slice( lastSlashIndex+1, dotIndex );
+                    } else {
+                        className = coordsData.class;
+                    }
+
+                    if( isFromSprite ) {
+                        if( coordsData.x !== 0 ) coordsData.x = coordsData.x * -1;
+                        if( coordsData.y !== 0 ) coordsData.y = coordsData.y * -1;
+                    }
+
+                    rtn += "."+cssPrefix+"-"+className + " {\n";
+
+                    if( isFromSprite )
+                        rtn += "  background-position:"+coordsData.x+"px "+ coordsData.y+"px;\n";
+
+                    rtn += "  width:"+(isFromSprite ? coordsData.width : coordsData.w)+"px;\n";
+                    rtn += "  height:"+(isFromSprite ? coordsData.height: coordsData.h)+"px;\n";
+                    rtn += "}\n\n";
+                });
+                return rtn;
+            })();
+
+        fse.outputFileSync( stylesOutput, scss );
     }
 
     // Returns a 'tests' object for unit testing purposes only

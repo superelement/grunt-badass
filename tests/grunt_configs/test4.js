@@ -1,10 +1,11 @@
 exports.test = {
 	src: '<%= rootDir %>tests/resources/svgs/'
-	,dest: "<%= rootDir %>dist/test2/"
+	,dest: "<%= rootDir %>dist/test4/"
 	,options: {
 		cssPrefix: "bad" // css classes will take this folder name as first part of class name, so keep it short
 
-		,stylesOutput: "<%= rootDir %>dist/test2/icons.css"
+		,includeFallback: false // no png or sprite generation
+		,stylesOutput: "<%= rootDir %>dist/test4/icons.css"
 
 		,items: [
 			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
@@ -15,6 +16,6 @@ exports.test = {
 			,{ filename: "code", class: "code-lg-bright", w: 80, h:60, fillCol: "yellow" }
 		]
 
-		,clearTmpDir: false
+		// ,clearTmpDir: false
 	}
 }
