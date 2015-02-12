@@ -50,6 +50,8 @@ module.exports = function(grunt) {
 		,badass: {
 			test1: require("./tests/grunt_configs/test1.js").test
 			,test2: require("./tests/grunt_configs/test2.js").test
+			// test 3 has its own task below
+			,test4: require("./tests/grunt_configs/test4.js").test
 		}
 
 		,clean: {
@@ -76,6 +78,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('test2', ['badass:test2']);
 	grunt.registerTask('test3', [ "svgstore:"+test3_RunSvgLoaderGruntTasks.svgStoreName
 									, test3_RunSvgLoaderGruntTasks.postSvgStoreName ]);
+	grunt.registerTask('test4', ["badass:test4"])
 
 	grunt.registerTask('default', ['jshint', 'test', 'badass']);
 };

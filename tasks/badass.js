@@ -5,6 +5,7 @@ module.exports = function( grunt ) {
      * TODO:
      * - add more checks for options and items and give errors or warnings
      * - add description comments for each function
+     * - add stroke width info into readme
      */
 
 
@@ -44,6 +45,7 @@ module.exports = function( grunt ) {
                 keepUncompressed: false
                 ,pngQuantSettings: null
             }
+            ,includeFallback: true
         });
 
         // empty the temp folder if exists
@@ -92,9 +94,14 @@ module.exports = function( grunt ) {
 
             checkCSSCompatibleFileNames( src, config.svgFileExceptions );
             coloursAndSizes( config.defaultCol, src, config.items, svgDir + "unmin-coloured/" );
-            copySafeSrc( config.defaultCol, src, svgDir, svgoPlugins, fullyDone );
+            svgMin( config.defaultCol, src, svgDir, config.svgoPlugins, fullyDone );
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.stylesOutput, config.items );
 
+            // if not generating sprite or any PNGs, say, because you don't need ie8 support, finish up here.
+            if( !config.includeFallback ) {
+                fullyDone();
+                return;
+            }
 
             svgToPng.convert( svgDir + "unmin-coloured/", fileObj.dest, opts )
             .then( function( result , err ){
@@ -379,8 +386,8 @@ module.exports = function( grunt ) {
     }
 
 
-    // copies original svgs to be processed by svgmin, removing references to BADASS for modern browsers
-    function copySafeSrc( defaultCol, src, svgDir, _svgoPlugins, done ) {
+    // copies original svgs to be processed by svgo, removing references to BADASS for modern browsers
+    function svgMin( defaultCol, src, svgDir, svgoPlugins, done ) {
 
         var svgo = new SVGO({ plugins: _svgoPlugins });
         var totalCount = 0;
@@ -622,7 +629,7 @@ module.exports = function( grunt ) {
             getClassesByProp: getClassesByProp
             ,replaceBetween: replaceBetween
             ,saveScss: saveScss
-            ,copySafeSrc: copySafeSrc
+            ,svgMin: svgMin
             ,replaceTag: replaceTag
             ,removeAttr: removeAttr
             ,coloursAndSizes: coloursAndSizes

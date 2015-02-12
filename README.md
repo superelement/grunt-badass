@@ -80,6 +80,9 @@ grunt.loadNpmTasks('grunt-badass');
 }
 ```
 
+#### includeFallback {boolean}
+> If you don't want to generate a sprite or any PNG fallbacks, say, because you don't need ie8 support, make this `false`. Defaults to true.
+
 
 ### SVG naming convention
 - File names will generate css class names as part of build. Please keep them short, all lowercase and without any spaces. They must fall within the regex 'a-z\-\_0-9' and not start with a number. 
@@ -144,6 +147,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-02-13   v0.1.8	 Changed 'copySafeSrc()' to 'svgMin()'. Added 'includeFallback' {boolean} option, defaulting to true.
  * 2015-02-05   v0.1.7	 Added defaults for SVGO plugin and tests for it.
  * 2015-02-05   v0.1.6	 Add option `compressSprite`, which uses Imagemin/PNGQuant lossy compression.
  * 2015-02-05   v0.1.5   Updated docs and version bumped.

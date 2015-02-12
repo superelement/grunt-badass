@@ -183,7 +183,7 @@ describe("test 3 - badass testable methods", function() {
 	});
 
 
-	describe("copySafeSrc()", function() {
+	describe("svgMin()", function() {
 
 		var srcPath = "./tests/resources/svgs/"
 			,destPath = TEST_DIR + "safe-svgs/";
@@ -191,7 +191,7 @@ describe("test 3 - badass testable methods", function() {
 
 		it("should verify that all '.svg' files have been copied to 'dest' directory", function(done) {
 
-			testableMethods.copySafeSrc( DEF_COL, srcPath, destPath, testableMethods.svgoPlugins, function() {
+			testableMethods.svgMin( DEF_COL, srcPath, destPath, testableMethods.svgoPlugins, function() {
 
 				var srcFileNames = fse.readdirSync( srcPath )
 					,destFileNamesMin = fse.readdirSync( destPath+"min/" )
@@ -205,7 +205,7 @@ describe("test 3 - badass testable methods", function() {
 
 		it("should check that svgs have had references to BADASS removed", function(done) {
 
-			testableMethods.copySafeSrc( DEF_COL, srcPath, destPath, testableMethods.svgoPlugins, function() {
+			testableMethods.svgMin( DEF_COL, srcPath, destPath, testableMethods.svgoPlugins, function() {
 				var srcFileNames = fse.readdirSync( srcPath );
 
 				srcFileNames.forEach(function(fileName) {
