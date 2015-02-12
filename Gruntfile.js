@@ -50,6 +50,8 @@ module.exports = function(grunt) {
 		,badass: {
 			test1: require("./tests/grunt_configs/test1.js").test
 			,test2: require("./tests/grunt_configs/test2.js").test
+			// test 3 has its own task below
+			,test4: require("./tests/grunt_configs/test4.js").test
 		}
 
 		,clean: {
@@ -72,7 +74,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('test', ['badass:test1', 'badass:test2', 'test3', 'jasmine_node:badass'] 
 		.concat( grunt.option("dirty") ? [] : ["clean:tests"] ) );
 
-	// Run test 3
+	grunt.registerTask('test4', ["badass:test4"])
 	grunt.registerTask('test3', [ "svgstore:"+test3_RunSvgLoaderGruntTasks.svgStoreName
 									, test3_RunSvgLoaderGruntTasks.postSvgStoreName ]);
 
