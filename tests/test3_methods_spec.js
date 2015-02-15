@@ -685,34 +685,175 @@ describe("test 3 - badass testable methods", function() {
 		}
 	});
 
+	describe("configChecks", function() {
+
+		var validItem = {
+			filename: "camera"
+			,class:"camera-warm"
+			,w:50
+			,h:44
+		}
+
+		it("should catch an error when `items` contains an item that is not an object.", function() {
+
+			expectError({
+				items:["string"]
+			});
+			expectError({
+				items:[10]
+			});
+			expectError({
+				items:[true]
+			});
+		});
+
+		it("should not throw an error when `items` contains an item that IS an object.", function() {
+
+			expectError({
+				items:[ validItem ]
+			},true);
+		});
+
+		it("should throw an error when `items.filename` is NOT a string.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.filename = 10;
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.class` is NOT a string.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.class = 10;
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.w` is NOT a number.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.w = "width";
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.h` is NOT a number.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.h = "height";
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.fillCol` is NOT a string.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.fillCol = 10;
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.strokeCol` is NOT a string.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.strokeCol = 10;
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.strokeWidth` is NOT a number or a string that represents a valid number.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.strokeWidth = 10;
+
+			// These should not throw an error
+			expectError({
+				items:[ thisItem ]
+			}, true);
+
+			thisItem.strokeWidth = "10";
+			expectError({
+				items:[ thisItem ]
+			}, true);
+
+			thisItem.strokeWidth = "0.001";
+			expectError({
+				items:[ thisItem ]
+			}, true);
+
+			// This should throw an error
+			thisItem.strokeWidth = "not a number";
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		it("should throw an error when `items.standAlone` is NOT a boolean.", function() {
+
+			var thisItem = _.clone( validItem );
+			thisItem.standAlone = "boolean";
+
+			expectError({
+				items:[ thisItem ]
+			});
+		});
+
+		function expectError( config, flip ) {
+			// use flip=true to expect NO errors
+
+			var itErrored = false;
+
+			try {
+				testableMethods.configChecks( config );
+			} catch(e) {
+				itErrored = true;
+				// console.log( e );
+			}
+
+			expect( itErrored ).toBe( flip ? false : true );
+		}
+	});
+
+
+	function lintCSS( done, returnedStr ) {
+		// Now we lint the CSS
+		var parser = new parserlib.css.Parser();
+
+		// will get changed to true in error handler if errors detected
+		var errorsFound = false;
+
+		parser.addListener("error", function(event){
+		    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
+		    errorsFound = true;
+		});
+
+		parser.addListener("endstylesheet", function(){
+		    console.log("Finished parsing style sheet");
+
+			expect( errorsFound ).toBe( false );
+
+			// finish the test
+		    done();
+		});
+		
+		parser.parse( returnedStr );
+	}
+
+
+	function trimAllWhite(str) {
+		return str.replace(/\s+/g, '');
+	}
 });
-
-
-function lintCSS( done, returnedStr ) {
-	// Now we lint the CSS
-	var parser = new parserlib.css.Parser();
-
-	// will get changed to true in error handler if errors detected
-	var errorsFound = false;
-
-	parser.addListener("error", function(event){
-	    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
-	    errorsFound = true;
-	});
-
-	parser.addListener("endstylesheet", function(){
-	    console.log("Finished parsing style sheet");
-
-		expect( errorsFound ).toBe( false );
-
-		// finish the test
-	    done();
-	});
-	
-	parser.parse( returnedStr );
-}
-
-
-function trimAllWhite(str) {
-	return str.replace(/\s+/g, '');
-}
