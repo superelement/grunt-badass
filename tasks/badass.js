@@ -7,6 +7,7 @@ module.exports = function( grunt ) {
      * - add description comments for each function
      * - add stroke width info into readme
      * - add tests for generateStyles
+     * - add example config to readme
      */
 
 
