@@ -54,25 +54,7 @@ module.exports = function( grunt ) {
         if( config.clearTmpDir && grunt.file.exists(config.tmpDir) )
             grunt.file.delete( config.tmpDir, { force: true });
 
-        // Config checks
-        if( !config.includeFallback && config.spriteOutput )
-            throw new Error("When 'includeFallback' is false 'spriteOutput' should be left as 'null'.");
-
-        if( !config.includeFallback && config.spriteUrl )
-            throw new Error("When 'includeFallback' is false 'spriteUrl' should be left as 'null'.");
-
-        if( !config.includeFallback && config.standAlonePngDir )
-            throw new Error("When 'includeFallback' is false 'standAlonePngDir' should be left as 'null'.");
-
-        if( !_.isArray(config.items) || config.items.length === 0 )
-            throw new Error("Config 'items' is empty. It must contain an array of object.");
-
-        // config.items.forEach(function( item ) {
-
-            // if( typeof item !== "object" )
-                // throw new Error("");
-        // });
-        
+        configChecks( config );
 
         var done = this.async();
         grunt.log.writeln( "BADASS".yellow );
@@ -645,6 +627,55 @@ module.exports = function( grunt ) {
         fse.outputFileSync( stylesOutput, scss );
     }
 
+
+    function configChecks(config) {
+
+        // Config checks
+        if( !config.includeFallback && config.spriteOutput )
+            throw new Error("When 'includeFallback' is false 'spriteOutput' should be left as 'null'.");
+
+        if( !config.includeFallback && config.spriteUrl )
+            throw new Error("When 'includeFallback' is false 'spriteUrl' should be left as 'null'.");
+
+        if( !config.includeFallback && config.standAlonePngDir )
+            throw new Error("When 'includeFallback' is false 'standAlonePngDir' should be left as 'null'.");
+
+        if( !_.isArray(config.items) || config.items.length === 0 )
+            throw new Error("Config 'items' is empty. It must contain an array of object.");
+
+        config.items.forEach(function( item ) {
+
+            if( typeof item !== "object" )
+                throw new Error("Grunt Badass `items` array must contain data types of `object` only.");
+
+            if( typeof item.filename !== "string" )
+                throw new Error("Grunt Badass `item.filename` must be a string.");
+
+            // return
+            if( typeof item.class !== "string" )
+                throw new Error("Grunt Badass `item.class` must be a string.");
+
+            if( typeof item.w !== "number" )
+                throw new Error("Grunt Badass `item.w` must be a number.");
+
+            if( typeof item.h !== "number" )
+                throw new Error("Grunt Badass `item.h` must be a number.");
+
+            if( item.fillCol && typeof item.fillCol !== "string" )
+                throw new Error("Grunt Badass `item.fillCol` must be a string.");
+
+            if( item.strokeCol && typeof item.strokeCol !== "string" )
+                throw new Error("Grunt Badass `item.strokeCol` must be a string.");
+
+            if( item.strokeWidth && parseFloat( item.strokeWidth ).toString() === "NaN" )
+                throw new Error("Grunt Badass `item.strokeWidth` must be a number to a string that represents a valid number.");
+
+            if( item.standAlone && typeof item.standAlone !== "boolean" )
+                throw new Error("Grunt Badass `item.standAlone` must be a boolean.");
+
+        });
+    }
+
     // Returns a 'tests' object for unit testing purposes only
     return {
         tests: {
@@ -661,6 +692,7 @@ module.exports = function( grunt ) {
             ,checkCSSCompatibleFileNames: checkCSSCompatibleFileNames
             ,runSvgLoaderGruntTasks: runSvgLoaderGruntTasks
             ,getSVGOPlugins: getSVGOPlugins
+            ,configChecks: configChecks
             ,svgoPlugins: svgoPlugins // just a var for reference in tests
         }
     }
