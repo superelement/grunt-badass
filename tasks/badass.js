@@ -10,8 +10,6 @@ module.exports = function( grunt ) {
      * - add example config to readme
      */
 
-
-
     var svgToPng = require('svg-to-png')
         ,spritesmith = require('spritesmith')
         ,fse = require("fs-extra")
@@ -564,9 +562,10 @@ module.exports = function( grunt ) {
             removeUnknownsAndDefaults: false
         }];
 
+
         // 'opts' must come first, so that it takes priority when run through _.defaults
         var combined = opts.concat( defs )
-            ,resultAsObject = _.defaults.apply(this, combined) // returns an object, but needs to be an array of objects
+            ,resultAsObject = _.defaults.apply({}, combined) // returns an object, but needs to be an array of objects
             ,rtnArr = [];
 
         // converts single object into array of objects with 1 property in each, to satisfy SVGO plugins structure
