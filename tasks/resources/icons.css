@@ -32,8 +32,9 @@ svg {
  * IE8 also does NOT support the :not pseudo selector,
  * so it will ignore this, which is fine.
  * Be carefull with .forcefallback, as it will load the entire sprite.
+ * If you're using the `noscript` element, it will ignore this abd show the sprite, because it uses a `span`, rather than an `svg` element.
  */
-html:not(.iconsfallback) .<%= cssPrefix %>:not(.forcefallback) {
+html:not(.iconsfallback) svg.dmicon:not(.forcefallback) {
   background: none !important;
 }
 

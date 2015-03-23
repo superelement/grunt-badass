@@ -1,0 +1,7 @@
+{{!-- Example of a non-js SVG. The noscript span will show the sprite when JS is not-available --}}
+<noscript>
+	<span class="noscript bad bad-{{ key }}-{{ size }} {{ cls }}"></span>
+</noscript>
+<svg class="bad bad-{{ key }}-{{ size }} {{ cls }}">
+	<use xlink:href="#bad-{{ key }}"></use>
+</svg>
