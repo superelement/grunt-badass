@@ -502,7 +502,7 @@ module.exports = function( grunt ) {
 
         grunt.config.data.svgstore["badass"+uid] = {
             options: {
-                prefix : svgPrefix
+                prefix : svgPrefix + "-"
             }
             ,files: files
         }

@@ -147,6 +147,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-03-23   v0.1.9	 Added a dash between 'svgPrefix' and svg id.
  * 2015-02-13   v0.1.8	 Changed 'copySafeSrc()' to 'svgMin()'. Added 'includeFallback' {boolean} option, defaulting to true.
  * 2015-02-05   v0.1.7	 Added defaults for SVGO plugin and tests for it.
  * 2015-02-05   v0.1.6	 Add option `compressSprite`, which uses Imagemin/PNGQuant lossy compression.
