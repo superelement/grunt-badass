@@ -84,6 +84,12 @@ grunt.loadNpmTasks('grunt-badass');
 > If you don't want to generate a sprite or any PNG fallbacks, say, because you don't need ie8 support, make this `false`. Defaults to true.
 
 
+#### Non-JS version
+> If you want to show the icons even when JS is turned off, you can use the handlebars template supplied in `/tasks/resources/nojs-svg.hbs`, which uses a `noscript` element to show the background sprite. It adds a bit of extra markup to the page, and is a pain if you're not using a templating language (like Handlebars), but solves the problem. 
+
+> Careful: Don't change the CSS so that the sprite is shown on the `svg` element when the `.no-js` class is shown. If you do that, the page will make a request for the sprite even if JS is enabled (in the split second before JS kicks in) and modern browsers will load a big PNG that they'll never use.
+
+
 ### SVG naming convention
 - File names will generate css class names as part of build. Please keep them short, all lowercase and without any spaces. They must fall within the regex 'a-z\-\_0-9' and not start with a number. 
 
@@ -147,6 +153,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-03-23   v0.1.10	 Added support for non-js version, using a handlebars template and 'noscript' element with the sprite.
  * 2015-03-23   v0.1.9	 Added a dash between 'svgPrefix' and svg id.
  * 2015-02-13   v0.1.8	 Changed 'copySafeSrc()' to 'svgMin()'. Added 'includeFallback' {boolean} option, defaulting to true.
  * 2015-02-05   v0.1.7	 Added defaults for SVGO plugin and tests for it.
