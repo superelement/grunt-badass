@@ -38,6 +38,13 @@ html:not(.iconsfallback) svg.dmicon:not(.forcefallback) {
   background: none !important;
 }
 
+/**
+ * Use `.no-js` class by default on on the document element and remove it when jS is executed.
+ */
+html.no-js svg.dmicon {
+  display: none;
+}
+
 .svgdefs {
 	display: none;
 }

@@ -265,6 +265,9 @@ module.exports = function( grunt ) {
 
             var contents = grunt.file.read( abspath );
 
+            if( contents.indexOf("<image") !== -1 )
+                throw new Error("Found an embedded image in your SVG '"+filename+"'. This is not vector and not supported.");
+
             if( contents.indexOf("<?xml") === -1 )
                 contents = '<?xml version="1.0" encoding="utf-8"?>\n' + contents;
 

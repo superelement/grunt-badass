@@ -153,6 +153,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-03-31   v0.1.11	 Added error for when embedded image is found is svg.
  * 2015-03-23   v0.1.10	 Added support for non-js version, using a handlebars template and 'noscript' element with the sprite.
  * 2015-03-23   v0.1.9	 Added a dash between 'svgPrefix' and svg id.
  * 2015-02-13   v0.1.8	 Changed 'copySafeSrc()' to 'svgMin()'. Added 'includeFallback' {boolean} option, defaulting to true.

@@ -438,7 +438,27 @@ describe("test 3 - badass testable methods", function() {
 			expect( fileContents.indexOf('stroke-width="'+almostZero+'"') ).not.toEqual(-1);
 		});
 
-		
+
+		it("should check that an svg with an image embedded throws an error", function() {
+			var svgTempDir = TEST_DIR + "tmp-svgs-stroke-img/"
+				,item = {
+					filename: 'camera'
+					,class: "camera-cold"
+					,w: 50
+					,h: 44
+					,fillCol: 'blue'
+				}
+				,itErrored = false;
+
+			try {
+				testableMethods.coloursAndSizes( DEF_COL, "./tests/resources/svgs-img-embed/", [item], svgTempDir );
+			} catch(e) {
+				itErrored = true;
+			}
+
+			expect( itErrored ).toBe( true );
+		});
+
 
 		function createTempSrc( testId, svgFileName ) {
 			var tempSrc = TEST_DIR + "tmp-colours-and-sizes-"+testId+"/"
