@@ -96,7 +96,7 @@ module.exports = function( grunt ) {
 
             checkCSSCompatibleFileNames( src, config.svgFileExceptions );
             coloursAndSizes( config.defaultCol, src, config.items, svgDir + "unmin-coloured/" );
-            svgMin( config.defaultCol, src, svgDir, config.svgoPlugins, fullyDone );
+            svgMin( config.defaultCol, src, config.items, svgDir, config.svgoPlugins, fullyDone );
             saveScss( config.includeCompassSpriteStyles, config.cssPrefix, config.stylesOutput, config.items );
 
             // if not generating sprite or any PNGs, say, because you don't need ie8 support, finish up here.
@@ -106,12 +106,14 @@ module.exports = function( grunt ) {
                 return;
             }
 
+            // console.log( fileObj.dest)
             svgToPng.convert( svgDir + "unmin-coloured/", fileObj.dest, opts )
             .then( function( result , err ){
                 if( err ) grunt.fatal( err );
 
                 var pngDir = fileObj.dest + config.cssPrefix + "/";
                 copyStandAlonePngs( config.items, pngDir, config.standAlonePngDir );
+                // applyAutoClasses( config.items, pngDir, config.standAlonePngDir );
 
                 if( cnt >= fileObj.src.length ) {
                     // empty the temp folder
@@ -214,7 +216,15 @@ module.exports = function( grunt ) {
 
         var icons = [];
         items.forEach(function(item) {
-            icons.push( pngDir + getFileBaseName(item) + '.png' );
+
+            var newFileName = getFileBaseName(item);
+            if( item.autoClasses && typeof item.autoClasses === "number" ) {
+                for(var i=0; i<item.autoClasses;i++) {
+                    icons.push( pngDir + newFileName + "-" + i + '.png' );
+                }
+            } else {
+                icons.push( pngDir + newFileName + '.png' );
+            }
         });
 
         spritesmith({ src: icons }, function(err, result) {
@@ -223,6 +233,7 @@ module.exports = function( grunt ) {
 
             fse.outputFileSync( spriteOutput, result.image, 'binary' );
 
+            // console.log( result.coordinates )
             generateStyles( spriteUrl, cssPrefix, stylesOutput, items, result.coordinates );
             
             done();
@@ -236,6 +247,32 @@ module.exports = function( grunt ) {
 
             if( item.standAlone ) {
 
+                if( item.autoClasses && typeof item.autoClasses === "number" ) {
+
+                    for(var i=0; i<item.autoClasses;i++) {
+                        var fileNameBase = getFileBaseName( item ) + "-" + i
+                            ,copyFromPath = pngDir + fileNameBase + ".png"
+                            ,copyToPath = standAlonePngDir + fileNameBase + ".png";
+
+                        grunt.file.copy( copyFromPath, copyToPath );
+                    }
+                } else {
+                    var fileNameBase = getFileBaseName( item )
+                        ,copyFromPath = pngDir + fileNameBase + ".png"
+                        ,copyToPath = standAlonePngDir + fileNameBase + ".png";
+
+                    grunt.file.copy( copyFromPath, copyToPath );
+                }
+            }
+        });
+    }
+
+    /*function applyAutoClasses( items, pngDir, standAlonePngDir ) {
+
+        _.forEach( items, function( item ) {
+
+            if( item.autoClasses ) {
+
                 var fileNameBase = getFileBaseName( item )
                     ,copyFromPath = pngDir + fileNameBase + ".png"
                     ,copyToPath = standAlonePngDir + fileNameBase + ".png";
@@ -243,7 +280,7 @@ module.exports = function( grunt ) {
                  grunt.file.copy( copyFromPath, copyToPath );
             }
         });
-    }
+    }*/
 
     function getFileBaseName( item ) {
 
@@ -303,7 +340,42 @@ module.exports = function( grunt ) {
                     var almostZero = "0.0001";
                     contents = replaceTag( 'stroke-width="0.1"', "stroke-width", (item.strokeWidth || almostZero),  contents );
 
-                    grunt.file.write( svgDir + getFileBaseName(item) + ".svg", contents );
+                    // console.log( "autoClasses".red, item.autoClasses );
+
+                    // grunt.file.write( svgDir + getFileBaseName(item) + ".svg", contents );
+
+                    var svgs = item.autoClasses || 1;
+
+                    if( typeof svgs !== "number" ) throw new Error("'autoClasses' must be a number.");
+
+                    if( item.autoClasses ) {
+                        // strips out existing classes
+                        contents = replaceBetween("class=\"", "\"", contents, "", false );
+                        contents = replaceBetween('class="', '"', contents, "", false );
+                    }
+
+                    var newFileName, newContents;
+                    for(var j=0; j<svgs;j++) {
+
+                        newFileName = getFileBaseName(item);
+                        newContents = contents;
+
+                        if( item.autoClasses ) {
+                            newFileName += "-" + j;
+                            var pathArr = newContents.split("<path ")
+                                ,thisContents = "";
+                            _.forEach( pathArr, function(pth, k) {
+                                if( k === 0)
+                                    thisContents += pth;
+                                else
+                                    thisContents += "<path class=\""+newFileName+"-"+k+"\" " + pth;
+                            });
+                            newContents = thisContents;
+                        }
+
+                        // console.log( svgDir + newFileName.yellow )
+                        grunt.file.write( svgDir + newFileName + ".svg", newContents );
+                    }
                 }
             }
         });
@@ -344,16 +416,23 @@ module.exports = function( grunt ) {
 
 
     // copies original svgs to be processed by svgo, removing references to BADASS for modern browsers
-    function svgMin( defaultCol, src, svgDir, _svgoPlugins, done ) {
+    function svgMin( defaultCol, src, items, svgDir, _svgoPlugins, done ) {
 
         var svgo = new SVGO({ plugins: _svgoPlugins });
         var totalCount = 0;
         var contentsArr = [];
         // var totalSaved = 0;
 
+        // console.log( items )
+
         grunt.file.recurse( src, function(abspath, rootdir, subdir, filename) {
 
             if( filename.indexOf(".svg") != -1 ) {
+
+                var matchedNames = _.where( items, { filename: filename.split(".")[0] } )
+                    ,autoFilter = _.where( matchedNames, function(obj, i) {
+                        return obj.autoClasses > 0;
+                    });
 
                 totalCount++;
 
@@ -363,10 +442,41 @@ module.exports = function( grunt ) {
                 contents = contents.split('stroke="#'+defaultCol+'"').join("");
                 contents = contents.split('fill="#'+defaultCol+'"').join("");
 
-                // if not using svgo, write svgs into svgDir
-                grunt.file.write( svgDir + "unmin/" + filename, contents );
+                if( autoFilter.length > 0 ) {
 
-                contentsArr.push( {contents: contents, filename: filename} );
+                    // strips out existing classes
+                    contents = replaceBetween("class=\"", "\"", contents, "", false );
+                    contents = replaceBetween('class="', '"', contents, "", false );
+
+                    // console.log( autoFilter );
+                    _.forEach( autoFilter, function(obj) {
+
+                        for(var j=0;j<obj.autoClasses;j++) {
+
+
+                            var newFileName = obj.class + "-"+j + ".svg"
+                                ,pathArr = contents.split("<path ")
+                                ,thisContents = "";
+                            _.forEach( pathArr, function(pth, k) {
+                                if( k === 0)
+                                    thisContents += pth;
+                                else
+                                    thisContents += "<path class=\""+obj.class + "-"+j+"-"+k+"\" " + pth;
+                            });
+
+                            // console.log(newFileName , j )
+                            // if not using svgo, write svgs into svgDir
+                            grunt.file.write( svgDir + "unmin/" + newFileName, thisContents );
+                            contentsArr.push( {contents: contents, filename: newFileName } );
+                        }
+                    });
+                } else {
+                    
+                    // if not using svgo, write svgs into svgDir
+                    grunt.file.write( svgDir + "unmin/" + filename, contents );
+                    contentsArr.push( {contents: contents, filename: filename} );
+                }
+
             }
         });
 
@@ -440,7 +550,10 @@ module.exports = function( grunt ) {
                 _.forEach( items, function( item ) {
 
                     if( item[ propName ] === val ) {
-                        rtnStr += "."+cssPrefix+"-" + item.class + ","+line1;
+                        var svgs = item.autoClasses || 1;
+                        for(var j=0; j<svgs;j++) {
+                            rtnStr += "."+cssPrefix+"-" + item.class + (item.autoClasses ? "-" + j : "") + ","+line1;
+                        }
                     }
                 });
 
@@ -522,6 +635,7 @@ module.exports = function( grunt ) {
             
             contents = _.template( contents, { "svgDefs":svgDefs } );
 
+            // console.log( contents)
             fse.outputFileSync( svgLoaderOutput, contents )
         });
 
@@ -626,6 +740,7 @@ module.exports = function( grunt ) {
                 return rtn;
             })();
 
+        // console.log( scss )
         fse.outputFileSync( stylesOutput, scss );
     }
 
