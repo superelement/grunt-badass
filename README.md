@@ -104,7 +104,7 @@ The following markup must be placed in the markup just after the body tag is ope
 
 
 ### Example configs
-
+Example including sprite fallback, a single standalone PNG and PNG compression switched off.
 ```js
 {
 	src: 'path/to/svg/directory/'
@@ -112,8 +112,16 @@ The following markup must be placed in the markup just after the body tag is ope
 	,options: {
 		cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
 
+		,spriteUrl: "/absolute/url/to/sprite.png"
+		,spriteOutput: "local/path/to/sprite/file.png"
+
 		// if 'standAlone' is marked as true, files will get copied to this directory
 		,standAlonePngDir: "path/to/standalone/png/output/directory/"
+
+		// Default is compressSprite.keepUncompressed = false
+		,compressSprite: {
+            keepUncompressed: true
+        }
 
 		,stylesOutput: "path/to/css/or/scss/output/file.css"
 		,items: [
@@ -125,14 +133,43 @@ The following markup must be placed in the markup just after the body tag is ope
 			,{ filename: "code", class: "code-lg-bright", w: 80, h:60, fillCol: "yellow" }
 		]
 
-		,svgoPlugins: [
-			{
-				removeUselessStrokeAndFill: true
-			}
-		]
-
 		// may be useful to make this false when testing output
 		,clearTmpDir: false
+	}
+}
+```
+
+Example that disabled the sprite generation, which results in a faster build, if you don't need ie8 support. Also includes some custom SVGO options.
+```js
+{
+	src: '<%= rootDir %>tests/resources/svgs/'
+	,dest: "<%= rootDir %>dist/test2/"
+	,options: {
+		cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
+		
+		,stylesOutput: "path/to/css/or/scss/output/file.css"
+
+		,items: [
+			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
+			,{ filename: "cloud", class: "cloud-down", w: 50, h:41, fillCol: "#999" }
+			,{ filename: "code", class: "code-sm-bright", w: 50, h:38, fillCol: "yellow" }
+		]
+
+		,includeFallback: false // no png or sprite generation
+
+		,svgoPlugins: [
+	        /**
+	         * One Apache server configuration has been known to convert certain combinations of numbers into ********** asterisk characters.
+			 * Suspected cause is some kind of malware protection blocking known number sequences in viruses.
+	         * This is a very rare edge case, but if you come across it, turning off the following 'convert' plugins will fix it.
+	         * However, as this same compression is used in PDFs and Font Awesome icons, you must start with an uncompressed source, or else
+	         * it will keep happening.
+	         */
+	         { convertPathData: false }
+	        ,{ convertStyleToAttrs: false }
+	        ,{ convertTransform: false }
+	        ,{ convertShapeToPath: false }
+	    ]
 	}
 }
 ```
