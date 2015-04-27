@@ -102,6 +102,41 @@ The following markup must be placed in the markup just after the body tag is ope
 <script src="/path/to/svgloader.js"></script>
 ```
 
+
+### Example configs
+
+```js
+{
+	src: 'path/to/svg/directory/'
+	,dest: "path/to/output/directory/"
+	,options: {
+		cssPrefix: "bad" // sprites will take this folder name as part of class name, so keep it short
+
+		// if 'standAlone' is marked as true, files will get copied to this directory
+		,standAlonePngDir: "path/to/standalone/png/output/directory/"
+
+		,stylesOutput: "path/to/css/or/scss/output/file.css"
+		,items: [
+			 { filename: "camera", class: "camera-warm", w: 50, h:44, fillCol: "orange" }
+			,{ filename: "camera", class: "camera-cold", w: 50, h:44, fillCol: "blue", standAlone: true }
+			,{ filename: "cloud", class: "cloud-down", w: 50, h:41, fillCol: "#999" }
+			,{ filename: "code", class: "code-sm-bright", w: 50, h:38, fillCol: "yellow" }
+			,{ filename: "code", class: "code-md-bright", w: 60, h:45, fillCol: "yellow" }
+			,{ filename: "code", class: "code-lg-bright", w: 80, h:60, fillCol: "yellow" }
+		]
+
+		,svgoPlugins: [
+			{
+				removeUselessStrokeAndFill: true
+			}
+		]
+
+		// may be useful to make this false when testing output
+		,clearTmpDir: false
+	}
+}
+```
+
 ### HTML5 Shiv
 A modified version of the HTML5 Shiv - https://github.com/aFarkas/html5shiv - has been included, which adds `<svg>` and `<use>` elements. This should be placed within an IE8 conditional comment. If you already have an HTML5 'shiv' or 'shim' on the page, remove it and use this one instead.
 
@@ -153,6 +188,7 @@ http://ianfeather.co.uk/ten-reasons-we-switched-from-an-icon-font-to-svg/
 
 ## Release History
 
+ * 2015-05-27   v0.1.12	 Added example config to docs.
  * 2015-03-31   v0.1.11	 Added error for when embedded image is found is svg.
  * 2015-03-23   v0.1.10	 Added support for non-js version, using a handlebars template and 'noscript' element with the sprite.
  * 2015-03-23   v0.1.9	 Added a dash between 'svgPrefix' and svg id.

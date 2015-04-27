@@ -40,7 +40,7 @@ module.exports = function( grunt ) {
             ,tmpDir: "./tmp/"
             ,svgoPlugins: []
             ,clearTmpDir: true
-            ,svgFileExceptions:[]
+            ,svgFileExceptions:[".DS_Store",".db"]
             ,compressSprite: {
                 keepUncompressed: false
                 ,pngQuantSettings: null
