@@ -28,3 +28,4 @@ Experiment with ie7 support.
 
 ## Improvements
 - start using promises
+- Start using Travis CI
