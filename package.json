@@ -1,7 +1,7 @@
 {
-  "name": "grunt-badass",
+  "name": "svgbadass",
   "description": "Use SVG elements on modern browsers with sprite fallback for IE8, just using CSS classes and some conditional JS polyfilling",
-  "version": "0.1.12",
+  "version": "0.1.0",
   "homepage": "https://github.com/jimdoyle82/grunt-badass",
   "author": {
     "name": "Jim Doyle",
@@ -20,7 +20,7 @@
       "url": "https://github.com/jimdoyle82/grunt-badass/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "Gruntfile.js",
+  "main": "index.js",
   "engines": {
     "node": ">=0.10.21"
   },
@@ -28,25 +28,30 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "svgo": "~0.4.1"
-    ,"svg-to-png": "0.2.0"
-    ,"lodash-node": "2.4.1"
-    ,"spritesmith": "1.0.3"
-    ,"fs-extra": "0.15.0"
-    ,"imagemin": "3.1.0"
-    ,"imagemin-pngquant": "4.0.0"
-    ,"grunt-svgstore": "0.2.7"
+    "svgo": "~0.4.1",
+    "svg-to-png": "0.2.0",
+    "lodash-node": "2.4.1",
+    "spritesmith": "1.0.3",
+    "fs-extra": "0.15.0"
   },
   "devDependencies": {
-    "grunt": "0.4.5"
-    ,"grunt-contrib-jshint": "~0.2.0"
-    ,"grunt-jasmine-node-coverage": "0.3.2"
-    ,"grunt-contrib-copy": "0.5.0"
-    ,"grunt-contrib-clean": "0.6.0"
-    ,"shelljs": "~0.2.5"
-    ,"parserlib": "0.2.5"
+    "grunt": "0.4.5",
+    "grunt-contrib-clean": "0.6.0",
+    "grunt-contrib-copy": "0.5.0",
+    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-jasmine-node-coverage": "0.3.2",
+
+    "gulp": "^3.8.11",
+    "gulp-jasmine": "2.0.1",
+    
+    "parserlib": "0.2.5",
+    "shelljs": "~0.2.5"
   },
   "keywords": [
-    "gruntplugin","svg","sprite","polyfill","ie8","fallback"
+    "svg",
+    "sprite",
+    "polyfill",
+    "ie8",
+    "fallback"
   ]
 }
